@@ -1,0 +1,39 @@
+# ── CINTA & Co. — Caddy config (auto-HTTPS) ──────────────────────────
+# Each property is a static web root under /var/www/<name>.
+# Reload after changes:  sudo systemctl reload caddy
+
+cintaconsulting.com {
+    redir https://www.cintaconsulting.com{uri}
+}
+www.cintaconsulting.com {
+    root * /var/www/www
+    file_server
+    encode gzip
+    try_files {path} {path}.html {path}/
+}
+
+responsibleai.cintaconsulting.com { root * /var/www/responsibleai
+    file_server
+    encode gzip }
+ecosystem.cintaconsulting.com { root * /var/www/ecosystem
+    file_server
+    encode gzip }
+aia.cintaconsulting.com { root * /var/www/aia
+    file_server
+    encode gzip }
+workflow.cintaconsulting.com { root * /var/www/workflow
+    file_server
+    encode gzip }
+execution.cintaconsulting.com { root * /var/www/execution
+    file_server
+    encode gzip }
+cintaai.cintaconsulting.com {
+    root * /var/www/cintaai
+    file_server
+    encode gzip
+    try_files {path} {path}.html {path}/
+}
+
+# ── NOTE ──────────────────────────────────────────────────────────────
+# insights.cintaconsulting.com is NOT here. The blog stays on Wix;
+# point that subdomain at Wix with the CNAME Wix gives you.

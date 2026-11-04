@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content operations assessment | CINTA AI</title>
+<meta name="description" content="An 8-question assessment of your content operation, with a plan recommendation. About two minutes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23D04747'/%3E%3Ctext x='16' y='23' font-family='Montserrat,Arial,sans-serif' font-size='21' font-weight='700' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="hdr"><div class="hdr__in"><a href="https://cintaai.cintaconsulting.com/" class="logo" aria-label="CINTA & Co. — Facilitating Success"><span class="logo__name">CINTA &amp; Co.</span><span class="logo__tag">Facilitating Success</span></a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><nav class="nav" id="nav" aria-label="Primary"><a href="https://cintaai.cintaconsulting.com/#how">How it works</a><a href="https://cintaai.cintaconsulting.com/#platform">Platform</a><a href="https://cintaai.cintaconsulting.com/#plans">Plans</a><a href="https://cintaai.cintaconsulting.com/#demo" class="btn btn-primary">Book a Demo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></nav></div></header>
+<section class="darkhero" style="padding-bottom:56px"><div class="wrap">
+<div class="kicker" data-r><span class="kicker__bar"></span><span class="kicker__txt">Content operations assessment</span></div>
+<h1 data-r data-rd="1">How ready is your <span class="accent">content engine?</span></h1>
+<p class="darkhero__sub" data-r data-rd="2">Eight questions, about two minutes. Get a read on where your content operation stands and which plan fits.</p></div></section>
+<section class="section"><div class="wrap" style="max-width:760px">
+<div id="asmt" data-r>
+<div id="bar" style="height:6px;background:var(--gray);border-radius:3px;overflow:hidden;margin-bottom:32px"><div id="fill" style="height:100%;width:12.5%;background:var(--red);transition:width .3s"></div></div>
+<div id="qbox"></div>
+<div style="display:flex;justify-content:space-between;margin-top:28px">
+<button id="prev" class="btn btn-secondary" style="visibility:hidden">Back</button>
+<button id="next" class="btn btn-primary" disabled>Next</button></div>
+</div>
+<div id="result" style="display:none;text-align:center">
+<div class="icon-well" style="width:64px;height:64px;margin:0 auto 24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;color:var(--red);stroke-width:1.75"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg></div>
+<p class="eyebrow" style="justify-content:center">Your result</p>
+<h2 id="rtier" style="font-size:var(--fs-h1);margin:12px 0 16px"></h2>
+<p id="rtext" style="font-size:17px;color:var(--text-body);line-height:1.7;max-width:560px;margin:0 auto 32px"></p>
+<a href="#demo" id="rcta" class="btn btn-primary btn-lg">Book a demo</a>
+<div><button id="restart" class="textlink" style="margin-top:24px;background:none;border:0;cursor:pointer">Start over</button></div>
+</div></div></section>
+<script>
+(function(){
+var Q=[{q:'How much content does your team publish per week?',a:['Less than 3 pieces','3 to 10 pieces','11 to 25 pieces','More than 25 pieces']},{q:'How many tools are in your content workflow?',a:['1 to 2','3 to 5','6 to 10','More than 10']},{q:'How often do you repurpose one piece across channels?',a:['Rarely','Sometimes','Often','Every time, manually']},{q:'How long from idea to published across channels?',a:['Weeks','About a week','A few days','Same day']},{q:'How consistent is your brand voice across channels?',a:['Inconsistent','Somewhat','Mostly','Tightly controlled']},{q:"What share of your team's time is production vs strategy?",a:['Mostly production','More production','Balanced','Mostly strategy']},{q:'How far along is your AI adoption for content?',a:['Not started','Experimenting','Some workflows','Embedded']},{q:'How big is the gap between content demand and output?',a:['Enormous','Large','Manageable','None']}];var i=0,ans=Array(Q.length).fill(-1);
+var qbox=document.getElementById("qbox"),fill=document.getElementById("fill"),
+nextB=document.getElementById("next"),prevB=document.getElementById("prev"),
+asmt=document.getElementById("asmt"),res=document.getElementById("result");
+function render(){var q=Q[i];
+var h='<p style="font-size:13px;font-weight:600;color:var(--brown);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Question '+(i+1)+' of '+Q.length+'</p>';
+h+='<h2 style="font-size:24px;margin-bottom:24px">'+q.q+'</h2><div style="display:flex;flex-direction:column;gap:12px">';
+q.a.forEach(function(o,k){var sel=ans[i]===k;
+h+='<button class="opt" data-k="'+k+'" style="text-align:left;padding:16px 18px;border:1.5px solid '+(sel?"var(--red)":"var(--gray)")+';border-radius:var(--r-btn);background:'+(sel?"var(--red-tint)":"#fff")+';font-family:var(--ff);font-size:15px;color:var(--text);cursor:pointer;transition:all .15s">'+o+'</button>';});
+h+='</div>';qbox.innerHTML=h;
+fill.style.width=((i+1)/Q.length*100)+"%";
+prevB.style.visibility=i===0?"hidden":"visible";
+nextB.disabled=ans[i]<0;nextB.textContent=i===Q.length-1?"See result":"Next";
+Array.prototype.forEach.call(qbox.querySelectorAll(".opt"),function(b){
+b.onclick=function(){ans[i]=+b.dataset.k;render();};});}
+nextB.onclick=function(){if(ans[i]<0)return;if(i<Q.length-1){i++;render();}else{finish();}};
+prevB.onclick=function(){if(i>0){i--;render();}};
+function finish(){var s=ans.reduce(function(a,b){return a+b;},0);
+var tiers=[
+{max:7,t:"Starter is your fit",x:"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire."},
+{max:15,t:"Growth is your fit",x:"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70× multiplication, so your strategists get back to strategy."},
+{max:23,t:"Agency or Growth, depending on your model",x:"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further."},
+{max:32,t:"Enterprise is worth a conversation",x:"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale."}];
+var r=tiers.find(function(z){return s<=z.max;})||tiers[3];
+asmt.style.display="none";res.style.display="block";
+document.getElementById("rtier").textContent=r.t;
+document.getElementById("rtext").textContent=r.x;
+document.getElementById("rcta").href="https://cintaai.cintaconsulting.com/#demo";}
+document.getElementById("restart").onclick=function(){i=0;ans=Array(Q.length).fill(-1);res.style.display="none";asmt.style.display="block";render();};
+render();
+})();
+</script><footer class="ftr"><div class="wrap"><div class="ftr__grid"><div><div class="ftr__name">CINTA &amp; Co.</div><div class="ftr__tag">Facilitating Success</div><p class="ftr__desc">The consulting partner mid-market organizations trust when the ground is shifting. Toronto, Ontario, Canada.</p><div class="ftr__social"><a href="https://www.linkedin.com/company/cinta-andco" aria-label="CINTA &amp; Co. on LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.3 0-2.95-1.8-2.95s-2.08 1.4-2.08 2.85V21H9V9Z"/></svg></a></div></div><div><p class="ftr__col-t">Sectors</p><div class="ftr__links"><a href="https://www.cintaconsulting.com/sectors.html#education">Education</a><a href="https://www.cintaconsulting.com/sectors.html#sports">Sports &amp; Recreation</a><a href="https://www.cintaconsulting.com/sectors.html#social-impact">Social Impact</a><a href="https://www.cintaconsulting.com/sectors.html#health">Health &amp; Wellness</a><a href="https://www.cintaconsulting.com/sectors.html#entrepreneurship">Entrepreneurship</a><a href="https://www.cintaconsulting.com/sectors.html#building-materials">Building Materials &amp; Manufacturing</a></div></div><div><p class="ftr__col-t">Services</p><div class="ftr__links"><a href="https://www.cintaconsulting.com/services.html#transformation">Leadership &amp; Transformation</a><a href="https://www.cintaconsulting.com/services.html#strategy">Strategic Planning</a><a href="https://www.cintaconsulting.com/services.html#sales-enablement">Sales Enablement</a><a href="https://www.cintaconsulting.com/services.html#innovation">Business Model Innovation</a><a href="https://www.cintaconsulting.com/services.html#digital">Digital Strategy</a></div></div><div><p class="ftr__col-t">Company</p><div class="ftr__links"><a href="https://www.cintaconsulting.com/about.html">About &amp; team</a><a href="https://insights.cintaconsulting.com">Insights</a><a href="https://cintaai.cintaconsulting.com">CINTA AI Platform</a><a href="https://responsibleai.cintaconsulting.com">Responsible AI</a><a href="https://www.cintaconsulting.com/contact.html">Contact</a></div></div></div><div class="ftr__bottom"><p class="ftr__copy">© 2026 CINTA &amp; Co. All rights reserved.</p><div class="ftr__legal"><a href="https://www.cintaconsulting.com/privacy.html">Privacy policy</a><a href="https://www.cintaconsulting.com/terms.html">Terms of use</a></div></div></div></footer>
+<script>(function(){var e=document.querySelectorAll("[data-r]");if(!("IntersectionObserver"in window)||!e.length){e.forEach(function(x){x.classList.add("vis")});return;}var o=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("vis");o.unobserve(x.target);}})},{threshold:.12,rootMargin:"0px 0px -40px 0px"});e.forEach(function(x){o.observe(x)});})();(function(){var b=document.querySelector(".nav-toggle"),n=b&&document.getElementById(b.getAttribute("aria-controls"));if(!b||!n)return;b.addEventListener("click",function(){var o=n.classList.toggle("open");b.setAttribute("aria-expanded",o?"true":"false");b.setAttribute("aria-label",o?"Close menu":"Open menu");});})();</script>
+</body>
+</html>

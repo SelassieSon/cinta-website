@@ -1,0 +1,39 @@
+/* ============================================================
+   CINTA & Co. — Design Tokens  (single source of truth)
+   Verified against CINTA Brand Guidelines v1.0 (Feb 2026).
+   Every page imports this. Never hard-code a brand value elsewhere.
+   ============================================================ */
+:root{
+  /* COLOUR — 60-30-10: white/gray dominant, black anchor, red accent */
+  --red:#D04747;            /* CINTA Red · Pantone 7620 C · rgb(208,71,71) */
+  --red-dark:#B83D3D;       /* hover (derived) */
+  --red-tint:rgba(208,71,71,.08);
+  --brown:#944026;          /* CINTA Brown · Pantone 7587 C · tagline, warm accents */
+  --black:#000000;          /* primary text, anchor sections */
+  --white:#FFFFFF;          /* dominant surface */
+  --gray:#E6E6E6;           /* Light Gray · dividers, borders */
+  --gray-bg:#F4F4F2;        /* softened alt-section tint */
+  --text:#000000;
+  --text-body:#333333;
+  --muted:#6E6E6E;
+
+  /* TYPE — Montserrat only (300/400/600/700), per brand fallback stack */
+  --ff:'Montserrat','Arial','Helvetica Neue',sans-serif;
+  --fw-light:300; --fw-reg:400; --fw-semi:600; --fw-bold:700;
+  --fs-display:clamp(40px,5vw,56px);   /* Display · Bold */
+  --fs-h1:clamp(28px,3.5vw,34px);      /* H1 · Bold */
+  --fs-h2:clamp(24px,3vw,30px);        /* H2 · Bold */
+  --fs-h3:20px;                        /* H3 · Reg/Semi */
+  --fs-body:16px; --fs-body-lg:18px; --fs-caption:13px; --fs-eyebrow:13px;
+  --lh-body:1.6; --lh-tight:1.2; --ls-label:.05em;
+
+  /* LAYOUT */
+  --maxw:1200px; --pad-x:40px; --pad-x-sm:24px; --section-y:104px;
+
+  /* SHAPE / ELEVATION / MOTION (brand web spec) */
+  --r-btn:4px; --r-lg:6px;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 28px rgba(0,0,0,.10);
+  --t:200ms ease;
+  --bar-w:4px;
+}
