@@ -53,7 +53,8 @@ function typeFromKey_(k) { return typeOf_({ intent: (k === 'demo' ? 'demo' : '')
 
 // ─────────────────────────────────────────────────────────── HTTP
 function doGet(e) {
-  if (e && e.parameter && e.parameter.action === 'confirm') return handleConfirm_(e);
+  if (e && e.parameter && e.parameter.action === 'confirm')    return handleConfirm_(e);
+  if (e && e.parameter && e.parameter.action === 'reschedule') return handleReschedule_(e);
   return json_({ ok: true, service: 'CINTA booking + lead endpoint' });
 }
 function doPost(e) {
@@ -164,6 +165,45 @@ function handleConfirm_(e) {
   }
 }
 
+// ─────────────────────────────────────────────────────────── Reschedule
+function handleReschedule_(e) {
+  try {
+    var p = e.parameter;
+    var email = String(p.e || '').trim().toLowerCase();
+    var ty = String(p.ty || '');
+    if (!email) return htmlPage_('Something went wrong', 'That link is incomplete. Please reply to your email and we will help you find a new time.');
+    if (sign_(email + '|reschedule|' + ty) !== String(p.sig || '')) {
+      return htmlPage_('Link expired', 'That reschedule link is no longer valid. Reply to your email and we will find a new time with you.');
+    }
+    var type = typeFromKey_(ty);
+    var cal = CalendarApp.getCalendarById(CONFIG.CALENDAR_ID) || CalendarApp.getDefaultCalendar();
+    // Release the existing booking so the slot frees up and nothing is left stuck.
+    var existing = findExistingBooking_(cal, domainOf_(email), type.key);
+    if (existing) { try { existing.deleteEvent(); } catch (_) {} }
+    var d = { contact_email: email, contact_name: p.n || '', org_name: p.o || '', website: p.w || '',
+              sector: p.s || '', role: p.r || '', service_interest: p.si || '', segment: p.sg || '' };
+    var options = findSlots_(cal, CONFIG.SLOT_OPTIONS, type.minutes);
+    if (!options.length) {
+      sendNoSlot_(d, type);
+      return htmlPage_('We will be in touch', 'Your original time has been released. Our calendar is tight over the next couple of weeks, so we have emailed you to lock in a new time.');
+    }
+    var btns = options.map(function (s) {
+      var url = confirmUrl_(d, s.start.toISOString(), type);
+      return '<a href="' + url + '" style="display:inline-block;width:100%;box-sizing:border-box;text-align:center;' +
+why_btn_() + '">' + fmt_(s.start) + '</a>';
+    }).join('');
+    return htmlPage_('Pick a new time',
+      'Your original time has been released. Choose one that works and you are booked, just click it:<br><br>' +
+      btns + '<br><span style="font-size:13px;color:#888">None of these work? Reply to your email and we will find one that does.</span>');
+  } catch (err) {
+    notifyFailure_(err, e);
+    return htmlPage_('Something went wrong', 'We could not reschedule that. Please reply to your email and we will sort it out.');
+  }
+}
+function why_btn_() {
+  return 'background:' + RED + ';color:#fff;text-decoration:none;font-weight:600;padding:14px 20px;border-radius:4px;margin:6px 0;font-size:16px';
+}
+
 // ─────────────────────────────────────────────────────────── Booking
 function createBooking_(cal, d, persona, priority, start, type) {
   var domain = domainOf_(d.contact_email);
@@ -270,6 +310,14 @@ function confirmUrl_(d, startIso, type) {
   return base + '?' + Object.keys(q).map(function (k) {
     return encodeURIComponent(k) + '=' + encodeURIComponent(q[k]); }).join('&');
 }
+function rescheduleUrl_(d, type) {
+  var base = ScriptApp.getService().getUrl();
+  var q = { action: 'reschedule', e: d.contact_email, n: d.contact_name, o: d.org_name, w: d.website,
+            s: d.sector, r: d.role, si: d.service_interest || '', sg: d.segment || '',
+            ty: type.key, sig: sign_(d.contact_email + '|reschedule|' + type.key) };
+  return base + '?' + Object.keys(q).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(q[k]); }).join('&');
+}
 function tryAddMeet_(event) {
   try {
     if (typeof Calendar === 'undefined' || !Calendar.Events) return '';
@@ -334,17 +382,30 @@ function sendPickLinks_(d, slots, type) {
 }
 function sendConfirmation_(d, start, meet, already, folderUrl, type) {
   var subj = (already ? 'Your ' + type.label + ' with CINTA & Co.' : 'Confirmed: your ' + type.label + ' with CINTA & Co.');
-  GmailApp.sendEmail(d.contact_email, subj,
-    ['Hi ' + (d.contact_name || 'there') + ',', '',
+  var rurl = rescheduleUrl_(d, type);
+  var plain = ['Hi ' + (d.contact_name || 'there') + ',', '',
      (already ? 'You already have a ' + type.label + ' booked. Details again:'
               : 'Your ' + type.minutes + '-minute ' + type.label + ' is confirmed.'), '',
      'When: ' + fmt_(start),
      (meet ? 'Join: ' + meet : 'A calendar invitation is on its way.'),
      (folderUrl ? 'Your intake folder: ' + folderUrl : ''), '',
-     'If this time does not work, just reply and we will adjust it.', '',
+     'If this time does not work, pick a different one here (it releases this slot): ' + rurl, '',
      'CINTA & Co. — Facilitating Success', 'Toronto, Ontario'
-    ].filter(function (x) { return x !== ''; }).join('\n'),
-    { name: 'CINTA & Co.', replyTo: CONFIG.REPLY_TO });
+    ].filter(function (x) { return x !== ''; }).join('\n');
+  var html = '<div style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.6;max-width:520px">' +
+     '<p>Hi ' + esc_(d.contact_name || 'there') + ',</p>' +
+     '<p>' + (already ? 'You already have a ' + esc_(type.label) + ' booked. Details again:'
+                      : 'Your ' + type.minutes + '-minute ' + esc_(type.label) + ' is confirmed.') + '</p>' +
+     '<p><strong>When:</strong> ' + fmt_(start) + '<br>' +
+       (meet ? '<strong>Join:</strong> <a href="' + meet + '">' + meet + '</a>' : 'A calendar invitation is on its way.') + '</p>' +
+     (folderUrl ? '<p>Your intake folder: <a href="' + folderUrl + '">' + folderUrl + '</a></p>' : '') +
+     '<p style="margin:22px 0 8px">Need a different time?</p>' +
+     '<p style="margin:0"><a href="' + rurl + '" style="display:inline-block;background:' + RED +
+       ';color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:4px">Pick a different time</a></p>' +
+     '<p style="color:#666;font-size:13px;margin-top:8px">That releases this slot and lets you choose a new one, no reply needed.</p>' +
+     '<p style="margin-top:22px">CINTA &amp; Co. — Facilitating Success<br>Toronto, Ontario</p></div>';
+  GmailApp.sendEmail(d.contact_email, subj, plain,
+    { htmlBody: html, name: 'CINTA & Co.', replyTo: CONFIG.REPLY_TO });
 }
 function sendNoSlot_(d, type) {
   GmailApp.sendEmail(d.contact_email, 'Let us find a time — ' + type.label + ', CINTA & Co.',
