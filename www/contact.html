@@ -14,8 +14,8 @@
 <section class="pagehero"><div class="pagehero__accent"></div>
 <div class="wrap pagehero__in">
 <div class="kicker" data-r><span class="kicker__bar"></span><span class="kicker__txt">Start here</span></div>
-<h1 data-r data-rd="1">Get clarity on your <span class="accent">transformation priorities</span></h1>
-<p class="pagehero__sub" data-r data-rd="2">Every engagement begins with an Ecosystem Mapping Session, a focused diagnostic that maps your organization and gives you a clear recommendation for where to act first.</p></div></section>
+<h1 id="book-h1" data-r data-rd="1">Get clarity on your <span class="accent">transformation priorities</span></h1>
+<p id="book-sub" class="pagehero__sub" data-r data-rd="2">Every engagement begins with an Ecosystem Mapping Session, a focused diagnostic that maps your organization and gives you a clear recommendation for where to act first.</p></div></section>
 <section class="section"><div class="wrap"><div class="split">
 <div data-r>
 <h2>The Ecosystem Mapping Session</h2>
@@ -62,14 +62,22 @@
   // Carry service/sector context from the CTA link into the booking
   var params=new URLSearchParams(location.search);
   var svc=params.get("service"), sec=params.get("sector");
+  function setHero(focus,sub){
+    var h=document.getElementById("book-h1");
+    if(h){h.textContent="Let's talk about ";var s=document.createElement("span");s.className="accent";s.textContent=focus;h.appendChild(s);}
+    var p=document.getElementById("book-sub");if(p)p.textContent=sub;
+  }
+  function showFocus(t){var fo=document.getElementById("book-focus");if(fo){fo.textContent="Focus: "+t;fo.style.display="block";}}
   if(svc){
-    var fo=document.getElementById("book-focus");
-    if(fo){fo.textContent="Focus: "+svc;fo.style.display="block";}
+    showFocus(svc);
     var hid=document.createElement("input");hid.type="hidden";hid.name="service_interest";hid.value=svc;f.appendChild(hid);
+    setHero(svc,"Every CINTA engagement starts with a 90-minute Ecosystem Mapping Session, a focused diagnostic so we understand your situation before we recommend anything. Tell us about your "+svc+" priorities and we take care of the scheduling.");
   }
   if(sec){
     var sel=f.querySelector("select[name=sector]");
     if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text.replace(/&amp;/g,"&")===sec){sel.selectedIndex=i;break;}}}
+    showFocus(sec);
+    setHero(sec,"Every CINTA engagement starts with a 90-minute Ecosystem Mapping Session, a focused diagnostic tailored to organizations like yours in "+sec+". Tell us about your priorities and we take care of the scheduling.");
   }
   f.addEventListener("submit",function(e){
     e.preventDefault();
