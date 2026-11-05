@@ -2,8 +2,39 @@
 import common as c
 from common import icon, RAI, WWW
 A = icon("arrow")
-SCOPE = 'mailto:info@cintaconsulting.com?subject=Responsible%20AI%20-%20Scoping%20Request'
+SCOPE = '#scope'   # same-page lead-capture form (see scope_form)
 HDR = lambda: c.header_dark(f"{RAI}/#services", "Request a scope", SCOPE)
+
+def scope_form(service):
+    form = c.embed_form(
+      "scope-form",
+      "Request a scope",
+      "Tell us your context and we'll come back within one business day.",
+      (c.fld("contact_name","Your name","text","Jane Doe",True)+
+       c.fld("contact_email","Work email","email","jane@organization.ca",True)+
+       c.fld("org_name","Organization","text","Organization name",True)+
+       c.fld("website","Website","url","https://organization.ca",False)+
+       c.sel("sector","Sector",["Education","School Board","Post-secondary",
+         "Health / Hospital","Municipality","Ministry / Government",
+         "Non-profit / Social Impact","Sports & Recreation","Other"],False)+
+       c.fld("role","Your role","text","Executive Director, CISO, Privacy Lead…",False)+
+       c.ta("message","What would you like scoped?",
+         "Your AI use cases, obligations, timelines, or the questions you're weighing…",False,4)),
+      "Request a scope",
+      "Request received",
+      "Thank you. A member of the CoCr8 &times; CINTA Responsible AI team will be in touch within one business day to scope next steps.",
+      intent="lead", hidden={"service_interest": service},
+      fallback_subject="Responsible%20AI%20-%20Scoping%20Request")
+    return (f'<section class="section section--alt" id="scope"><div class="wrap"><div class="split">'
+     f'<div data-r><p class="eyebrow section-head">Start here</p>'
+     f'<h2>Request a scope</h2>'
+     f'<p>No cost, no commitment. Share your context and we map your obligations, your exposure, '
+     f'and the right first engagement, sized to where you actually are.</p>'
+     f'<ul class="checklist">'
+     f'<li>{icon("check")} A read on your obligations under EDSTA and IPC-OHRC principles</li>'
+     f'<li>{icon("check")} The exposure that matters most, in plain language</li>'
+     f'<li>{icon("check")} A recommended first engagement, sized to your capacity</li></ul></div>'
+     f'<div data-r data-rd="1">{form}</div></div></div></section>\n')
 
 def lander(folder, nav_title, page_title, desc, eyebrow, h1_lead, h1_accent, sub,
            context_intro, steps, includes, why_intro, why_points):
@@ -61,7 +92,7 @@ def lander(folder, nav_title, page_title, desc, eyebrow, h1_lead, h1_accent, sub
      f'<p class="cta-red__sub" data-r data-rd="1">Request a scope and we will map your context, your obligations, and the right first engagement.</p>'
      f'<a href="{SCOPE}" class="btn btn-on-red btn-lg" data-r data-rd="2">Request a scope {A}</a>'
      f'</div></section>\n')
-    body = alert+hero+ctx+how+whatsin+why+cta
+    body = alert+hero+ctx+how+whatsin+why+cta+scope_form(nav_title)
     c.write(folder,"index.html",page_title,desc,HDR(),body,cobrand=True)
 
 # ---------------- HUB ----------------
@@ -132,7 +163,7 @@ def hub():
      f'<p class="cta-red__sub" data-r data-rd="1">Request a scope and we will map your context, your obligations, and the right first engagement.</p>'
      f'<a href="{SCOPE}" class="btn btn-on-red btn-lg" data-r data-rd="2">Request a scope {A}</a>'
      f'</div></section>\n')
-    body = alert+hero+ctx+services+regsec+cta
+    body = alert+hero+ctx+services+regsec+cta+scope_form("Responsible AI (general enquiry)")
     c.write("responsibleai","index.html","Responsible AI | CoCr8 Labs × CINTA & Co.",
      "Operationalizing Responsible AI for Ontario organizations. Shadow AI audits, Algorithm Impact Assessments, workflow redesign, and ongoing governance.",
      HDR(), body, cobrand=True)

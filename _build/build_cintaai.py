@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import common as c
-from common import icon, AIURL, WWW, FORM
+from common import icon, AIURL, WWW
 A = icon("arrow")
 DEMO = f"{AIURL}/#demo"
 HDR = c.header_ai
@@ -16,16 +16,26 @@ def demo_section():
       ("zap","Your brand, your content","We use your blog post and brand guidelines, not generic samples."),
       ("download","Walk away with content","You keep every piece produced during the demo."),
       ("check","No commitment required","See the platform in action, then decide on your terms.")])
+    form = c.embed_form(
+      "demo-form",
+      "Book your CINTA AI demo",
+      "A few details and we send you times to choose from.",
+      (c.fld("contact_name","Your name","text","Jane Doe",True)+
+       c.fld("contact_email","Work email","email","jane@company.com",True)+
+       c.fld("org_name","Company","text","Company Inc.",True)+
+       c.fld("website","Website","url","https://company.com",False)+
+       c.sel("segment","You are a",["B2B SaaS","Agency","Founder-led","Enterprise","Other"],False)+
+       c.ta("message","What would you like to see? (optional)","A blog post or topic you'd like us to run live…",False,3)),
+      "Book my demo",
+      "Request received",
+      "Check your inbox, we've sent a few times to choose from. Pick one and your 30-minute demo is confirmed to the calendar automatically.",
+      intent="demo", fallback_subject="CINTA%20AI%20demo")
     return f'''<section class="section section--dark" id="demo"><div class="wrap"><div class="split">
 <div data-r><p class="eyebrow section-head" style="color:var(--red)">Book a demo</p>
 <h2 style="font-size:var(--fs-h1)">See CINTA transform your content live</h2>
 <p style="font-size:17px;color:rgba(255,255,255,.7);line-height:1.7;margin:20px 0 28px">In 30 minutes, we take your actual blog post and transform it into 70+ channel-optimized pieces using your brand guidelines. You keep everything we produce.</p>
 <ul style="list-style:none">{feats}</ul></div>
-<div data-r data-rd="1"><div class="embed"><div class="embed__head">
-<p class="embed__head-t">Book a CINTA AI demo</p>
-<p class="embed__head-s">We will reach out within 24 hours to schedule your session.</p></div>
-<iframe src="{FORM}" width="100%" height="640" title="Book a CINTA AI demo">Loading…</iframe>
-</div></div></div></div></section>
+<div data-r data-rd="1">{form}</div></div></div></section>
 '''
 
 def plans_section():
@@ -188,17 +198,22 @@ def brief():
 <h1 data-r data-rd="1">Give us one brief. <span class="accent">Get a campaign.</span></h1>
 <p class="darkhero__sub" data-r data-rd="2">Share a blog post or a short brief and your brand guidelines. We return 70+ channel-optimized pieces within 48 hours.</p></div></section>
 '''
-    fields = [
-     ("name","Full name","text","Jane Doe",True),
-     ("email","Work email","email","jane@company.com",True),
-     ("company","Company","text","Company Inc.",True),
-     ("website","Website","url","https://company.com",False),
-    ]
-    finputs = "".join(
-     f'<label style="display:block;margin-bottom:18px"><span style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">{lab}{" *" if req else ""}</span>'
-     f'<input type="{ty}" name="{nm}" placeholder="{ph}"{" required" if req else ""} '
-     f'style="width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:var(--r-btn);font-family:var(--ff);font-size:15px"></label>'
-     for nm,lab,ty,ph,req in fields)
+    briefform = c.embed_form(
+      "brief-form",
+      "Content brief",
+      "Takes about three minutes. We reply within one business day.",
+      (c.fld("contact_name","Full name","text","Jane Doe",True)+
+       c.fld("contact_email","Work email","email","jane@company.com",True)+
+       c.fld("org_name","Company","text","Company Inc.",True)+
+       c.fld("website","Website","url","https://company.com",False)+
+       c.sel("segment","Segment",["B2B SaaS","Agency","Founder-led","Other"],False)+
+       c.ta("message","Paste your content or a short brief","A blog post, a brief, or a link…",True,5)+
+       c.ta("brand_notes","Brand guidelines (link or notes)","Link to your brand guide, or key voice notes…",False,2)),
+      "Submit brief",
+      "Brief received",
+      "Thank you. Your brief is in, and we'll be in touch within one business day to confirm scope and get started.",
+      intent="lead", hidden={"service_interest": "CINTA AI content brief"},
+      fallback_subject="CINTA%20AI%20content%20brief")
     form = f'''<section class="section"><div class="wrap"><div class="split">
 <div data-r><h2>What happens next</h2>
 <div class="steps" style="grid-template-columns:1fr;gap:24px;margin-top:24px">
@@ -206,21 +221,7 @@ def brief():
 <div style="display:flex;gap:18px"><div class="step__n" style="margin:0">2</div><div><h3 style="font-size:16px">We produce</h3><p style="color:var(--muted);font-size:14px">16 agents generate across your chosen channels.</p></div></div>
 <div style="display:flex;gap:18px"><div class="step__n" style="margin:0">3</div><div><h3 style="font-size:16px">You review in 48 hours</h3><p style="color:var(--muted);font-size:14px">On-brand, governed, and ready to publish.</p></div></div>
 </div></div>
-<div data-r data-rd="1"><div class="embed"><div class="embed__head"><p class="embed__head-t">Content brief</p>
-<p class="embed__head-s">Takes about three minutes. We reply within 48 hours.</p></div>
-<div style="padding:32px;background:#fff">
-<!-- Wire action= to your brief intake handler (n8n webhook, Formspree, or your API). -->
-<form action="#" method="post" onsubmit="return false">
-{finputs}
-<label style="display:block;margin-bottom:18px"><span style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Segment</span>
-<select name="segment" style="width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:var(--r-btn);font-family:var(--ff);font-size:15px">
-<option>B2B SaaS</option><option>Agency</option><option>Founder-led</option><option>Other</option></select></label>
-<label style="display:block;margin-bottom:18px"><span style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Paste your content or a short brief *</span>
-<textarea name="brief" rows="5" required placeholder="A blog post, a brief, or a link…" style="width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:var(--r-btn);font-family:var(--ff);font-size:15px;resize:vertical"></textarea></label>
-<label style="display:block;margin-bottom:22px"><span style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Brand guidelines (link or notes)</span>
-<textarea name="brand" rows="2" placeholder="Link to your brand guide, or key voice notes…" style="width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:var(--r-btn);font-family:var(--ff);font-size:15px;resize:vertical"></textarea></label>
-<button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">Submit brief {A}</button>
-</form></div></div></div></div></div></section>
+<div data-r data-rd="1">{briefform}</div></div></div></section>
 '''
     c.write("cintaai","brief.html","Submit a brief | CINTA AI",
      "Submit a content brief to CINTA AI and get 70+ channel-optimized pieces within 48 hours.",

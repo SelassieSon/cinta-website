@@ -172,6 +172,72 @@ def write(prop, filename, title, desc, header_html, body, cobrand=False, css="si
         f.write(html)
     return os.path.join(prop, filename)
 
+# ---- booking / lead form helpers (shared across properties) ----
+FORM_STYLE = ('<style>'
+ '.fld{display:block;margin-bottom:16px}'
+ '.fld__l{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}'
+ '.fld input,.fld select,.fld textarea{width:100%;padding:12px 14px;border:1px solid var(--gray);'
+ 'border-radius:var(--r-btn);font-family:var(--ff);font-size:15px;color:var(--text);background:#fff}'
+ '.fld textarea{resize:vertical}'
+ '.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--red);'
+ 'box-shadow:0 0 0 3px var(--red-tint)}'
+ '</style>')
+
+def fld(nm, lab, ty="text", ph="", req=False):
+    return (f'<label class="fld"><span class="fld__l">{lab}{" *" if req else ""}</span>'
+            f'<input type="{ty}" name="{nm}" placeholder="{ph}"{" required" if req else ""}></label>')
+
+def sel(nm, lab, opts, req=False):
+    o = "".join(f'<option>{x}</option>' for x in opts)
+    return (f'<label class="fld"><span class="fld__l">{lab}{" *" if req else ""}</span>'
+            f'<select name="{nm}"{" required" if req else ""}>{o}</select></label>')
+
+def ta(nm, lab, ph="", req=False, rows=4):
+    return (f'<label class="fld"><span class="fld__l">{lab}{" *" if req else ""}</span>'
+            f'<textarea name="{nm}" rows="{rows}" placeholder="{ph}"{" required" if req else ""}></textarea></label>')
+
+def _form_js(form_id, ok_id, intent):
+    return ('<script>(function(){'
+     'var WEBHOOK=' + repr(BOOKING_WEBHOOK) + ';'
+     'var f=document.getElementById(' + repr(form_id) + ');if(!f)return;'
+     'function uuid(){return "web-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);}'
+     'f.addEventListener("submit",function(e){'
+     'e.preventDefault();if(!f.checkValidity()){f.reportValidity();return;}'
+     'var btn=f.querySelector("button[type=submit]");if(btn){btn.disabled=true;btn.style.opacity=.6;}'
+     'var d=Object.fromEntries(new FormData(f).entries());'
+     'd.intent=' + repr(intent) + ';d.persona="";d.submitted_at=new Date().toISOString();d.response_id=uuid();'
+     'fetch(WEBHOOK,{method:"POST",mode:"no-cors",body:JSON.stringify(d)})'
+     '.catch(function(){}).finally(function(){'
+     'f.style.display="none";var ok=document.getElementById(' + repr(ok_id) + ');if(ok)ok.style.display="block";});'
+     '});})();</script>')
+
+def embed_form(form_id, head_t, head_s, fields_html, submit_label, ok_title, ok_text,
+               intent="", hidden=None, fallback_subject=None, include_style=True):
+    """Branded white-body card with a fire-and-forget form that POSTs to the
+    Apps Script endpoint with the given intent ('' ecosystem, 'demo', 'lead')."""
+    ok_id = form_id + "-ok"
+    hid = ""
+    if hidden:
+        hid = "".join(f'<input type="hidden" name="{k}" value="{v}">' for k, v in hidden.items())
+    fb = ""
+    if fallback_subject:
+        fb = (f'<p style="font-size:12.5px;color:var(--muted);margin-top:16px;text-align:center">'
+              f'Prefer email? <a href="mailto:info@cintaconsulting.com?subject={fallback_subject}" '
+              f'class="textlink" style="display:inline">info@cintaconsulting.com</a></p>')
+    style = FORM_STYLE if include_style else ""
+    return (f'<div class="embed"><div class="embed__head">'
+     f'<p class="embed__head-t">{head_t}</p><p class="embed__head-s">{head_s}</p></div>'
+     f'<div style="padding:32px;background:#fff">'
+     f'<form id="{form_id}" novalidate>{hid}{fields_html}'
+     f'<button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:6px">{submit_label} {icon("arrow")}</button>'
+     f'{fb}</form>'
+     f'<div id="{ok_id}" style="display:none;text-align:center;padding:24px 8px">'
+     f'<div class="icon-well" style="width:56px;height:56px;margin:0 auto 20px">{icon("check")}</div>'
+     f'<h3 style="font-size:20px;margin-bottom:10px">{ok_title}</h3>'
+     f'<p style="font-size:15px;color:var(--muted);line-height:1.6">{ok_text}</p>'
+     f'</div></div></div>'
+     f'{style}{_form_js(form_id, ok_id, intent)}')
+
 # ---- reusable fragment helpers ----
 def cta_red(heading, sub, label, href, on_red=True):
     cls = "btn btn-on-red btn-lg" if on_red else "btn btn-primary btn-lg"
