@@ -34,7 +34,10 @@ case "$MODE" in
     sync aia           /var/www/landing/aia
     sync workflow      /var/www/landing/workflow
     sync execution     /var/www/landing/execution
-    sync cintaai       /var/www/cintaai ;;
+    sync cintaai       /var/www/cintaai
+    sync insights      /var/www/insights ;;
+  insights)
+    sync insights /var/www/insights ;;
   staging-caddy)
     mkdir -p /etc/caddy/sites
     if ! grep -q 'import /etc/caddy/sites' /etc/caddy/Caddyfile; then
@@ -72,6 +75,23 @@ CADDY
     caddy validate --config /etc/caddy/Caddyfile
     systemctl reload caddy
     echo "  www + apex vhost ready (TLS issues once DNS points them here)" ;;
+  insights-caddy)
+    mkdir -p /etc/caddy/sites /var/www/insights
+    if ! grep -q 'import /etc/caddy/sites' /etc/caddy/Caddyfile; then
+      cp /etc/caddy/Caddyfile "/etc/caddy/Caddyfile.bak.$(date +%s)"
+      sed -i '1i import /etc/caddy/sites/*.caddy\n' /etc/caddy/Caddyfile
+    fi
+    cat > /etc/caddy/sites/insights.caddy <<'CADDY'
+insights.cintaconsulting.com {
+    encode zstd gzip
+    root * /var/www/insights
+    try_files {path} {path}.html {path}/
+    file_server
+}
+CADDY
+    caddy validate --config /etc/caddy/Caddyfile
+    systemctl reload caddy
+    echo "  insights vhost ready (TLS issues once DNS points insights -> this server)" ;;
   *) echo "unknown mode: $MODE"; exit 1 ;;
 esac
 echo "done ($MODE)."
