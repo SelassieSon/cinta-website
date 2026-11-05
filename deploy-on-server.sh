@@ -95,6 +95,73 @@ CADDY
     caddy validate --config /etc/caddy/Caddyfile
     systemctl reload caddy
     echo "  insights vhost ready (TLS issues once DNS points insights -> this server)" ;;
+  cms)
+    # Browser CMS: GitHub OAuth relay + auto-rebuild cron + OAuth-enabled vhost.
+    command -v python3 >/dev/null 2>&1 || { apt-get update -qq; apt-get install -y -qq python3; }
+    python3 -m pip install --break-system-packages -q markdown pyyaml 2>/dev/null || \
+      apt-get install -y -qq python3-markdown python3-yaml || true
+
+    # 1) OAuth relay service
+    mkdir -p /opt/cinta-oauth
+    cp "$REPO_DIR/cms-auth/oauth.py" /opt/cinta-oauth/oauth.py
+    if [ ! -f /etc/cinta-oauth.env ]; then
+      cat > /etc/cinta-oauth.env <<'ENV'
+# Fill these from your GitHub OAuth App, then: systemctl restart cinta-oauth
+CINTA_OAUTH_CLIENT_ID=
+CINTA_OAUTH_CLIENT_SECRET=
+CINTA_OAUTH_PORT=8787
+ENV
+      chmod 600 /etc/cinta-oauth.env
+      echo "  >> created /etc/cinta-oauth.env — add your GitHub client id/secret, then: systemctl restart cinta-oauth"
+    fi
+    cat > /etc/systemd/system/cinta-oauth.service <<'UNIT'
+[Unit]
+Description=CINTA CMS GitHub OAuth relay
+After=network-online.target
+Wants=network-online.target
+[Service]
+EnvironmentFile=/etc/cinta-oauth.env
+ExecStart=/usr/bin/python3 /opt/cinta-oauth/oauth.py
+Restart=always
+User=root
+[Install]
+WantedBy=multi-user.target
+UNIT
+    systemctl daemon-reload
+    systemctl enable --now cinta-oauth
+    systemctl restart cinta-oauth
+
+    # 2) Auto-rebuild cron (every 5 min, only redeploys insights when main changes)
+    chmod +x "$REPO_DIR/cms-auth/autodeploy.sh"
+    cat > /etc/cron.d/cinta-cms <<'CRON'
+*/5 * * * * root /opt/cinta-website/cms-auth/autodeploy.sh >> /var/log/cinta-cms.log 2>&1
+CRON
+
+    # 3) OAuth-enabled Insights vhost (supersedes the basic insights vhost)
+    mkdir -p /etc/caddy/sites
+    if ! grep -q 'import /etc/caddy/sites' /etc/caddy/Caddyfile; then
+      cp /etc/caddy/Caddyfile "/etc/caddy/Caddyfile.bak.$(date +%s)"
+      sed -i '1i import /etc/caddy/sites/*.caddy\n' /etc/caddy/Caddyfile
+    fi
+    cat > /etc/caddy/sites/insights.caddy <<'CADDY'
+insights.cintaconsulting.com {
+    encode zstd gzip
+    @oldpost path_regexp op ^/post/(.+?)/?$
+    redir @oldpost /{re.op.1}.html 301
+    handle /oauth/* {
+        reverse_proxy 127.0.0.1:8787
+    }
+    handle {
+        root * /var/www/insights
+        try_files {path} {path}.html {path}/
+        file_server
+    }
+}
+CADDY
+    caddy validate --config /etc/caddy/Caddyfile
+    systemctl reload caddy
+    echo "  CMS ready: /admin served, /oauth proxied, auto-rebuild cron installed."
+    echo "  If you just created /etc/cinta-oauth.env, fill it and run: systemctl restart cinta-oauth" ;;
   *) echo "unknown mode: $MODE"; exit 1 ;;
 esac
 echo "done ($MODE)."

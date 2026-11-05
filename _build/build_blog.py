@@ -4,6 +4,7 @@ Reads content/blog/*.md (YAML-ish front matter + Markdown body) and writes a
 brand-consistent listing page, one page per post, and an RSS feed into insights/."""
 import os, re, json, glob, html as _html, datetime
 from email.utils import formatdate
+import yaml as _yaml
 import markdown as _md
 import common as c
 from common import WWW, INS, AIURL, RAI, icon
@@ -15,26 +16,36 @@ PROP = "insights"
 def parse(path):
     raw = open(path, encoding="utf-8").read()
     m = re.match(r"^---\n(.*?)\n---\n?(.*)$", raw, re.S)
-    meta, body = {}, raw
     if m:
-        body = m.group(2)
-        for line in m.group(1).split("\n"):
-            if not line.strip():
-                continue
-            k, _, v = line.partition(":")
-            k, v = k.strip(), v.strip()
-            try:
-                meta[k] = json.loads(v)
-            except Exception:
-                meta[k] = v.strip('"')
-    return meta, body
+        try:
+            meta = _yaml.safe_load(m.group(1)) or {}
+        except Exception:
+            meta = {}
+        return (meta if isinstance(meta, dict) else {}), m.group(2)
+    return {}, raw
 
-def fmt_date(iso):
-    try:
-        d = datetime.datetime.strptime((iso or "")[:19], "%Y-%m-%dT%H:%M:%S")
-        return d.strftime("%B %-d, %Y"), d
-    except Exception:
-        return "", None
+def fmt_date(v):
+    d = None
+    if isinstance(v, datetime.datetime):
+        d = v
+    elif isinstance(v, datetime.date):
+        d = datetime.datetime(v.year, v.month, v.day)
+    else:
+        try:
+            d = datetime.datetime.strptime(str(v or "")[:19], "%Y-%m-%dT%H:%M:%S")
+        except Exception:
+            d = None
+    return (d.strftime("%B %-d, %Y") if d else ""), d
+
+def derive_excerpt(body):
+    for para in (body or "").split("\n\n"):
+        s = para.strip()
+        if not s or s.startswith(("!", "#", ">", "-", "|", "```")):
+            continue
+        s = re.sub(r"\*\*|__|\*|_|`", "", s)
+        s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
+        return (s[:197] + "...") if len(s) > 200 else s
+    return ""
 
 def render_md(body):
     return _md.markdown(body, extensions=["extra", "sane_lists", "smarty"])
@@ -175,8 +186,12 @@ def build():
     for f in files:
         meta, body = parse(f)
         slug = meta.get("slug") or os.path.basename(f)[:-3]
-        posts.append({"slug": slug, "meta": meta, "body": body})
-    posts.sort(key=lambda p: p["meta"].get("date", ""), reverse=True)
+        if not meta.get("excerpt"):
+            meta["excerpt"] = derive_excerpt(body)
+        _, dt = fmt_date(meta.get("date"))
+        posts.append({"slug": slug, "meta": meta, "body": body,
+                      "sort": dt.isoformat() if dt else ""})
+    posts.sort(key=lambda p: p["sort"], reverse=True)
     # per-post pages
     for p in posts:
         html_body = render_md(p["body"])

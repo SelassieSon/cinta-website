@@ -1,0 +1,45 @@
+backend:
+  name: github
+  repo: SelassieSon/cinta-website
+  branch: main
+  base_url: https://insights.cintaconsulting.com
+  auth_endpoint: oauth/auth
+
+# Uploaded images land in the served tree and are referenced at /uploads/...
+media_folder: "insights/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+site_url: https://insights.cintaconsulting.com
+
+collections:
+  - name: blog
+    label: "Blog posts"
+    label_singular: "Post"
+    folder: "content/blog"
+    create: true
+    extension: md
+    format: yaml-frontmatter
+    slug: "{{fields.slug}}"
+    identifier_field: title
+    summary: "{{title}}  ·  {{date | date('MMM D, YYYY')}}"
+    sortable_fields: [date, title]
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "URL slug", name: "slug", widget: "string",
+          hint: "Lowercase words separated by dashes. This becomes the page address." }
+      - { label: "Date", name: "date", widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: "HH:mm",
+          format: "YYYY-MM-DDTHH:mm:ss.000[Z]" }
+      - { label: "Author", name: "author", widget: "string", default: "CINTA & Co." }
+      - { label: "Categories", name: "categories", widget: "list", required: false,
+          hint: "e.g. Strategy, AI, Leadership" }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Read time (minutes)", name: "minutes", widget: "number",
+          required: false, value_type: "int", min: 0, default: 0 }
+      - { label: "Cover image", name: "cover", widget: "image", required: false,
+          hint: "Shown at the top of the post and on the Insights grid." }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false,
+          hint: "One or two sentences for the listing. Leave blank to auto-generate." }
+      - { label: "Original Wix path", name: "wix_path", widget: "hidden", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
