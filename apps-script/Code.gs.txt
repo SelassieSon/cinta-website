@@ -82,6 +82,11 @@ function handleBooking_(d) {
   d.segment       = String(d.segment || '').trim();
   d.message       = String(d.message || '').trim();
   d.brand_notes   = String(d.brand_notes || '').trim();
+  d.action_plan   = String(d.action_plan || '').trim();
+  d.assessment_result = String(d.assessment_result || '').trim();
+  d.assessment_score  = String(d.assessment_score || '').trim();
+  d.cta_url       = String(d.cta_url || '').trim();
+  d.cta_label     = String(d.cta_label || '').trim();
   d.intent        = String(d.intent || '').trim().toLowerCase();
 
   if (d.intent === 'lead') return handleLead_(d);
@@ -113,28 +118,80 @@ function handleLead_(d) {
     try { logClient_('L-' + domainOf_(d.contact_email) + '-' + today_(), d, derivePersona_(d), 'LEAD', null, 'LEAD'); }
     catch (err) { notifyFailure_('Sheet log failed: ' + err, null); }
   }
-  var about = d.service_interest ? ('your interest in ' + d.service_interest) : 'your Responsible AI enquiry';
-  GmailApp.sendEmail(d.contact_email, 'We received your request — CoCr8 x CINTA Responsible AI',
-    'Hi ' + (d.contact_name || 'there') + ',\n\n' +
-    'Thank you for reaching out about ' + about + '. A member of the CoCr8 x CINTA Responsible AI team ' +
-    'will be in touch within one business day to scope next steps.\n\n' +
-    'CoCr8 Labs x CINTA & Co.\nResponsible AI',
-    { name: 'CoCr8 x CINTA — Responsible AI', replyTo: CONFIG.REPLY_TO });
+  var isAssessment = !!d.action_plan || /assessment/i.test(d.service_interest);
+  if (isAssessment) { sendActionPlan_(d); }
+  else {
+    var about = d.service_interest ? ('your interest in ' + d.service_interest) : 'your Responsible AI enquiry';
+    GmailApp.sendEmail(d.contact_email, 'We received your request — CoCr8 x CINTA Responsible AI',
+      'Hi ' + (d.contact_name || 'there') + ',\n\n' +
+      'Thank you for reaching out about ' + about + '. A member of the CoCr8 x CINTA Responsible AI team ' +
+      'will be in touch within one business day to scope next steps.\n\n' +
+      'CoCr8 Labs x CINTA & Co.\nResponsible AI',
+      { name: 'CoCr8 x CINTA — Responsible AI', replyTo: CONFIG.REPLY_TO });
+  }
   if (CONFIG.NOTIFY_EMAIL) {
+    var tag = isAssessment ? '[ASSESSMENT LEAD]' : '[RAI LEAD]';
     GmailApp.sendEmail(CONFIG.NOTIFY_EMAIL,
-      '[RAI LEAD] ' + (d.org_name || d.contact_email) + (d.service_interest ? ' — ' + d.service_interest : ''),
-      ['New Responsible AI scope request.', '',
+      tag + ' ' + (d.org_name || d.contact_email) + (d.service_interest ? ' — ' + d.service_interest : ''),
+      ['New lead from ' + (d.service_interest || 'Responsible AI'), '',
        'Service: ' + (d.service_interest || '(general)'),
+       (d.assessment_result ? 'Result: ' + d.assessment_result + (d.assessment_score ? ' (score ' + d.assessment_score + ')' : '') : ''),
        'Organization: ' + d.org_name, 'Website: ' + d.website,
        'Contact: ' + d.contact_name + ' <' + d.contact_email + '>',
        'Sector: ' + d.sector, 'Role: ' + d.role,
        (d.segment ? 'Segment: ' + d.segment : ''), '',
-       'Message:', (d.message || '(none)'),
+       (d.action_plan ? 'Action plan sent:\n' + d.action_plan : 'Message:\n' + (d.message || '(none)')),
        (d.brand_notes ? '\nBrand guidelines: ' + d.brand_notes : '')]
        .filter(function (x) { return x !== ''; }).join('\n'),
       { name: 'CINTA Booking Bot' });
   }
-  return { ok: true, status: 'lead_received' };
+  return { ok: true, status: isAssessment ? 'action_plan_sent' : 'lead_received' };
+}
+
+function sendActionPlan_(d) {
+  var svc = d.service_interest || 'AI Readiness Assessment';
+  var result = d.assessment_result || '';
+  var score = d.assessment_score || '';
+  var plan = d.action_plan || '';
+  var ctaLabel = (d.cta_label || '').replace(/^Or\s+/i, '').trim();
+  if (ctaLabel) ctaLabel = ctaLabel.charAt(0).toUpperCase() + ctaLabel.slice(1);
+  // Plain text
+  var plain = ['Hi ' + (d.contact_name || 'there') + ',', '',
+    'Here is your ' + svc + ' result and action plan.', '',
+    'Your result: ' + result + (score ? ' (score ' + score + ')' : ''), '',
+    plan, '',
+    (d.cta_url ? (ctaLabel || 'Take the next step') + ': ' + d.cta_url : ''),
+    'A member of our team will also follow up within one business day.', '',
+    'CINTA & Co. — Facilitating Success', 'Toronto, Ontario'
+  ].filter(function (x) { return x !== ''; }).join('\n');
+  // HTML: turn the plan's "- " lines into a list, other lines into paragraphs
+  var lines = plan.split('\n'), html = '', inList = false;
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].trim();
+    if (!l) continue;
+    if (l.indexOf('- ') === 0) {
+      if (!inList) { html += '<ul style="padding-left:18px;margin:10px 0">'; inList = true; }
+      html += '<li style="margin:6px 0">' + esc_(l.slice(2)) + '</li>';
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<p style="margin:10px 0">' + esc_(l) + '</p>';
+    }
+  }
+  if (inList) html += '</ul>';
+  var body = '<div style="font-family:Arial,sans-serif;font-size:15px;color:#222;line-height:1.6;max-width:560px">' +
+    '<p>Hi ' + esc_(d.contact_name || 'there') + ',</p>' +
+    '<p>Here is your <strong>' + esc_(svc) + '</strong> result and action plan.</p>' +
+    '<div style="background:#F4F4F2;border-left:4px solid ' + RED + ';padding:14px 18px;border-radius:4px;margin:16px 0">' +
+    '<div style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#944026">Your result</div>' +
+    '<div style="font-size:18px;font-weight:700;margin-top:4px">' + esc_(result) + (score ? ' <span style="font-weight:400;color:#666;font-size:14px">(score ' + esc_(score) + ')</span>' : '') + '</div></div>' +
+    '<div style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#944026;margin-top:18px">Your action plan</div>' +
+    html +
+    (d.cta_url ? '<p style="margin:22px 0 6px"><a href="' + d.cta_url + '" style="display:inline-block;background:' + RED +
+       ';color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:4px">' + esc_(ctaLabel || 'Take the next step') + '</a></p>' : '') +
+    '<p style="color:#666;font-size:13px">A member of our team will also follow up within one business day.</p>' +
+    '<p style="margin-top:22px">CINTA &amp; Co. — Facilitating Success<br>Toronto, Ontario</p></div>';
+  GmailApp.sendEmail(d.contact_email, 'Your ' + svc + ' results and action plan — CINTA & Co.',
+    plain, { htmlBody: body, name: 'CINTA & Co.', replyTo: CONFIG.REPLY_TO });
 }
 
 // ─────────────────────────────────────────────────────────── Click-to-book

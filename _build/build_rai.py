@@ -188,10 +188,14 @@ def readiness():
       ["No process","Case by case","An informal playbook","Defined incident response"]),
     ]
     TIERS = [
-     {"max":7,"t":"Exposed — start with a map","x":"AI is already in your organization, but it is ungoverned. The first move is a 90-minute Ecosystem Mapping Session to see your exposure and obligations before something goes wrong."},
-     {"max":13,"t":"Reactive — formalize the basics","x":"You have awareness but not structure. A formal Algorithm Impact Assessment, plus an approved and enforced policy, closes the gaps that matter most."},
-     {"max":19,"t":"Managing — tighten and sustain","x":"Good foundations, uneven in places. A Copilot Workflow Redesign and ongoing governance keep you current as regulation and tools keep moving."},
-     {"max":24,"t":"Governed — stay ahead","x":"You run a mature practice. An Execution System retainer keeps it current with quarterly reviews, policy updates, and incident response."},
+     {"max":7,"t":"Exposed — start with a map","x":"AI is already in your organization, but it is ungoverned. The first move is a 90-minute Ecosystem Mapping Session to see your exposure and obligations before something goes wrong.",
+      "steps":["Inventory where AI is already used across your teams, sanctioned or not","Draft a short, plain-language AI use policy as an interim guardrail","Book a 90-minute Ecosystem Mapping Session to see your exposure and obligations"]},
+     {"max":13,"t":"Reactive — formalize the basics","x":"You have awareness but not structure. A formal Algorithm Impact Assessment, plus an approved and enforced policy, closes the gaps that matter most.",
+      "steps":["Run a formal Algorithm Impact Assessment on your highest-risk system","Get your AI policy approved by leadership and actually enforced","Assign a named owner with a clear board mandate for AI decisions"]},
+     {"max":19,"t":"Managing — tighten and sustain","x":"Good foundations, uneven in places. A Copilot Workflow Redesign and ongoing governance keep you current as regulation and tools keep moving.",
+      "steps":["Redesign one key workflow with AI and governance built in from the start","Roll out responsible-AI training organization-wide, not just to some teams","Set a quarterly cadence to review policy against EDSTA and IPC-OHRC changes"]},
+     {"max":24,"t":"Governed — stay ahead","x":"You run a mature practice. An Execution System retainer keeps it current with quarterly reviews, policy updates, and incident response.",
+      "steps":["Put governance on a retainer: quarterly reviews and policy updates","Run incident-response drills so an AI issue has a defined playbook","Set a board reporting cadence that keeps leadership accountable"]},
     ]
     c.assessment_page("responsibleai","readiness",
      "AI Governance Readiness Assessment | CoCr8 Labs × CINTA & Co.",

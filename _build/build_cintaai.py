@@ -240,10 +240,14 @@ def assessment():
      ("How big is the gap between content demand and output?",["Enormous","Large","Manageable","None"]),
     ]
     TIERS = [
-     {"max":6,"t":"Starter is your fit","x":"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire."},
-     {"max":13,"t":"Growth is your fit","x":"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70x multiplication, so your strategists get back to strategy."},
-     {"max":19,"t":"Agency or Growth, depending on your model","x":"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further."},
-     {"max":24,"t":"Enterprise is worth a conversation","x":"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale."},
+     {"max":6,"t":"Starter is your fit","x":"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire.",
+      "steps":["Pick one flagship piece a week and let CINTA AI multiply it across your core channels","Write one reusable brief template so every piece starts from the same brand voice","Book a demo to see the multiplication run on your own content"]},
+     {"max":13,"t":"Growth is your fit","x":"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70x multiplication, so your strategists get back to strategy.",
+      "steps":["Consolidate your scattered point tools into one multiplication pipeline","Move your team from producing every piece to reviewing and directing","Brief once and ship a full campaign across six channels in 48 hours"]},
+     {"max":19,"t":"Agency or Growth, depending on your model","x":"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further.",
+      "steps":["If you run multiple brands, evaluate the multi-tenant Agency setup for margin","Standardize brand guardrails so quality holds as volume climbs","Track production hours reclaimed as your first ROI measure"]},
+     {"max":24,"t":"Enterprise is worth a conversation","x":"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale.",
+      "steps":["Add policy-as-code approval routing and audit trails for governance","Integrate CRM (Salesforce or HubSpot) so content ties to pipeline","Configure custom agents for your highest-volume content types"]},
     ]
     c.assessment_page("cintaai","assessment","AI Readiness Assessment | CINTA AI",
      "An 8-question assessment of your content operation, with a plan recommendation and a personalized action plan. About two minutes.",

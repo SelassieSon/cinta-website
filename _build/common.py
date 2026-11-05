@@ -256,6 +256,7 @@ def assessment_page(prop, slug, title, desc, header_html, eyebrow, h1_lead, h1_a
     tjson = _json.dumps(tiers)
     maxscore = sum(len(opts) - 1 for q, opts in questions)
     msgid = slug + "-msg"
+    resid, scoreid, planid = slug + "-res", slug + "-score", slug + "-plan"
     hero = ('<section class="darkhero" style="padding-bottom:56px"><div class="wrap">'
      '<div class="kicker" data-r><span class="kicker__bar"></span>'
      f'<span class="kicker__txt">{eyebrow}</span></div>'
@@ -265,9 +266,14 @@ def assessment_page(prop, slug, title, desc, header_html, eyebrow, h1_lead, h1_a
       (fld("contact_name", "Your name", "text", "Jane Doe", True) +
        fld("contact_email", "Work email", "email", "jane@organization.ca", True) +
        fld("org_name", "Organization", "text", "Organization name", False) +
-       f'<input type="hidden" name="message" id="{msgid}">'),
-      "Send me my action plan", "On its way",
-      "Thank you. Your result and action plan are on their way to your inbox, and we will follow up within one business day.",
+       f'<input type="hidden" name="message" id="{msgid}">'
+       f'<input type="hidden" name="assessment_result" id="{resid}">'
+       f'<input type="hidden" name="assessment_score" id="{scoreid}">'
+       f'<input type="hidden" name="action_plan" id="{planid}">'
+       f'<input type="hidden" name="cta_url" value="{cta_href}">'
+       f'<input type="hidden" name="cta_label" value="{cta_label}">'),
+      "Email me my action plan", "On its way",
+      "Thank you. Your full action plan is on its way to your inbox, and we will follow up within one business day.",
       intent="lead", hidden={"service_interest": service_tag},
       fallback_subject=_u.quote(service_tag))
     app = ('<section class="section"><div class="wrap" style="max-width:760px">'
@@ -283,14 +289,19 @@ def assessment_page(prop, slug, title, desc, header_html, eyebrow, h1_lead, h1_a
      '<div class="icon-well" style="width:64px;height:64px;margin:0 auto 24px">' + icon("gauge") + '</div>'
      '<p class="eyebrow" style="justify-content:center">Your result</p>'
      '<h2 id="rtier" style="font-size:var(--fs-h1);margin:12px 0 16px"></h2>'
-     '<p id="rtext" style="font-size:17px;color:var(--text-body);line-height:1.7;max-width:560px;margin:0 auto 28px"></p>'
+     '<p id="rtext" style="font-size:17px;color:var(--text-body);line-height:1.7;max-width:560px;margin:0 auto 24px"></p>'
+     '<p style="font-size:13px;font-weight:600;color:var(--brown);letter-spacing:.05em;text-transform:uppercase;margin:0 0 10px">Your action plan</p>'
+     '<ul id="rsteps"></ul>'
+     '<style>#rsteps{list-style:none;padding:0;max-width:560px;margin:0 auto 26px;text-align:left}'
+     '#rsteps li{position:relative;padding:10px 0 10px 28px;border-bottom:1px solid var(--gray);font-size:15px;color:var(--text-body)}'
+     '#rsteps li:before{content:"";position:absolute;left:2px;top:17px;width:8px;height:8px;border-radius:50%;background:var(--red)}</style>'
      '</div>' + capture +
      f'<p style="text-align:center;margin-top:18px"><a href="{cta_href}" class="textlink">{cta_label}</a>'
      '  ·  <button id="restart" class="textlink" style="background:none;border:0;cursor:pointer;font:inherit;color:var(--red)">Start over</button></p>'
      '</div></div></section>')
     script = ('<script>(function(){'
      'var Q=' + qjson + ';var T=' + tjson + ';'
-     'var MSGID=' + repr(msgid) + ',LABEL=' + repr(service_tag) + ',MAX=' + str(maxscore) + ';'
+     'var MSGID=' + repr(msgid) + ',RESID=' + repr(resid) + ',SCOREID=' + repr(scoreid) + ',PLANID=' + repr(planid) + ',LABEL=' + repr(service_tag) + ',MAX=' + str(maxscore) + ';'
      'var i=0,ans=Array(Q.length).fill(-1);'
      'var qbox=document.getElementById("qbox"),fill=document.getElementById("fill"),'
      'nextB=document.getElementById("next"),prevB=document.getElementById("prev"),'
@@ -312,7 +323,12 @@ def assessment_page(prop, slug, title, desc, header_html, eyebrow, h1_lead, h1_a
      'asmt.style.display="none";res.style.display="block";'
      'document.getElementById("rtier").textContent=r.t;'
      'document.getElementById("rtext").textContent=r.x;'
-     'var m=document.getElementById(MSGID);if(m)m.value=LABEL+" result: "+r.t+" (score "+s+"/"+MAX+")";}'
+     'var steps=r.steps||[];'
+     'var ul=document.getElementById("rsteps");if(ul){ul.innerHTML=steps.map(function(x){return "<li>"+x+"</li>";}).join("");}'
+     'var plan=r.x+(steps.length?("\\n\\n"+steps.map(function(x){return "- "+x;}).join("\\n")):"");'
+     'function setv(id,v){var e=document.getElementById(id);if(e)e.value=v;}'
+     'setv(MSGID,LABEL+" result: "+r.t+" (score "+s+"/"+MAX+")");'
+     'setv(RESID,r.t);setv(SCOREID,s+"/"+MAX);setv(PLANID,plan);}'
      'document.getElementById("restart").onclick=function(){i=0;ans=Array(Q.length).fill(-1);res.style.display="none";asmt.style.display="block";render();};'
      'render();})();</script>')
     return write(prop, slug + ".html", title, desc, header_html, hero + app + script, cobrand=cobrand)
