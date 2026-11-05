@@ -84,6 +84,9 @@ CADDY
     cat > /etc/caddy/sites/insights.caddy <<'CADDY'
 insights.cintaconsulting.com {
     encode zstd gzip
+    # Preserve SEO: old Wix blog URLs /post/<slug> -> new /<slug>.html
+    @oldpost path_regexp op ^/post/(.+?)/?$
+    redir @oldpost /{re.op.1}.html 301
     root * /var/www/insights
     try_files {path} {path}.html {path}/
     file_server
