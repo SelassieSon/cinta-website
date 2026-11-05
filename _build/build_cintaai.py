@@ -239,67 +239,19 @@ def assessment():
      ("How far along is your AI adoption for content?",["Not started","Experimenting","Some workflows","Embedded"]),
      ("How big is the gap between content demand and output?",["Enormous","Large","Manageable","None"]),
     ]
-    qjson = "[" + ",".join(
-     '{q:'+repr(q)+',a:['+",".join(repr(o) for o in opts)+']}' for q,opts in QS) + "]"
-    hero = f'''<section class="darkhero" style="padding-bottom:56px"><div class="wrap">
-<div class="kicker" data-r><span class="kicker__bar"></span><span class="kicker__txt">Content operations assessment</span></div>
-<h1 data-r data-rd="1">How ready is your <span class="accent">content engine?</span></h1>
-<p class="darkhero__sub" data-r data-rd="2">Eight questions, about two minutes. Get a read on where your content operation stands and which plan fits.</p></div></section>
-'''
-    app = '''<section class="section"><div class="wrap" style="max-width:760px">
-<div id="asmt" data-r>
-<div id="bar" style="height:6px;background:var(--gray);border-radius:3px;overflow:hidden;margin-bottom:32px"><div id="fill" style="height:100%;width:12.5%;background:var(--red);transition:width .3s"></div></div>
-<div id="qbox"></div>
-<div style="display:flex;justify-content:space-between;margin-top:28px">
-<button id="prev" class="btn btn-secondary" style="visibility:hidden">Back</button>
-<button id="next" class="btn btn-primary" disabled>Next</button></div>
-</div>
-<div id="result" style="display:none;text-align:center">
-<div class="icon-well" style="width:64px;height:64px;margin:0 auto 24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;color:var(--red);stroke-width:1.75"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg></div>
-<p class="eyebrow" style="justify-content:center">Your result</p>
-<h2 id="rtier" style="font-size:var(--fs-h1);margin:12px 0 16px"></h2>
-<p id="rtext" style="font-size:17px;color:var(--text-body);line-height:1.7;max-width:560px;margin:0 auto 32px"></p>
-<a href="#demo" id="rcta" class="btn btn-primary btn-lg">Book a demo</a>
-<div><button id="restart" class="textlink" style="margin-top:24px;background:none;border:0;cursor:pointer">Start over</button></div>
-</div></div></section>
-'''
-    script = '''<script>
-(function(){
-var Q=''' + qjson + ''';var i=0,ans=Array(Q.length).fill(-1);
-var qbox=document.getElementById("qbox"),fill=document.getElementById("fill"),
-nextB=document.getElementById("next"),prevB=document.getElementById("prev"),
-asmt=document.getElementById("asmt"),res=document.getElementById("result");
-function render(){var q=Q[i];
-var h='<p style="font-size:13px;font-weight:600;color:var(--brown);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Question '+(i+1)+' of '+Q.length+'</p>';
-h+='<h2 style="font-size:24px;margin-bottom:24px">'+q.q+'</h2><div style="display:flex;flex-direction:column;gap:12px">';
-q.a.forEach(function(o,k){var sel=ans[i]===k;
-h+='<button class="opt" data-k="'+k+'" style="text-align:left;padding:16px 18px;border:1.5px solid '+(sel?"var(--red)":"var(--gray)")+';border-radius:var(--r-btn);background:'+(sel?"var(--red-tint)":"#fff")+';font-family:var(--ff);font-size:15px;color:var(--text);cursor:pointer;transition:all .15s">'+o+'</button>';});
-h+='</div>';qbox.innerHTML=h;
-fill.style.width=((i+1)/Q.length*100)+"%";
-prevB.style.visibility=i===0?"hidden":"visible";
-nextB.disabled=ans[i]<0;nextB.textContent=i===Q.length-1?"See result":"Next";
-Array.prototype.forEach.call(qbox.querySelectorAll(".opt"),function(b){
-b.onclick=function(){ans[i]=+b.dataset.k;render();};});}
-nextB.onclick=function(){if(ans[i]<0)return;if(i<Q.length-1){i++;render();}else{finish();}};
-prevB.onclick=function(){if(i>0){i--;render();}};
-function finish(){var s=ans.reduce(function(a,b){return a+b;},0);
-var tiers=[
-{max:7,t:"Starter is your fit",x:"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire."},
-{max:15,t:"Growth is your fit",x:"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70× multiplication, so your strategists get back to strategy."},
-{max:23,t:"Agency or Growth, depending on your model",x:"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further."},
-{max:32,t:"Enterprise is worth a conversation",x:"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale."}];
-var r=tiers.find(function(z){return s<=z.max;})||tiers[3];
-asmt.style.display="none";res.style.display="block";
-document.getElementById("rtier").textContent=r.t;
-document.getElementById("rtext").textContent=r.x;
-document.getElementById("rcta").href="''' + DEMO + '''";}
-document.getElementById("restart").onclick=function(){i=0;ans=Array(Q.length).fill(-1);res.style.display="none";asmt.style.display="block";render();};
-render();
-})();
-</script>'''
-    c.write("cintaai","assessment.html","Content operations assessment | CINTA AI",
-     "An 8-question assessment of your content operation, with a plan recommendation. About two minutes.",
-     HDR(), hero+app+script)
+    TIERS = [
+     {"max":6,"t":"Starter is your fit","x":"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire."},
+     {"max":13,"t":"Growth is your fit","x":"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70x multiplication, so your strategists get back to strategy."},
+     {"max":19,"t":"Agency or Growth, depending on your model","x":"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further."},
+     {"max":24,"t":"Enterprise is worth a conversation","x":"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale."},
+    ]
+    c.assessment_page("cintaai","assessment","AI Readiness Assessment | CINTA AI",
+     "An 8-question assessment of your content operation, with a plan recommendation and a personalized action plan. About two minutes.",
+     HDR(), "Content operations assessment",
+     "How ready is your","content engine?",
+     "Eight questions, about two minutes. See where your content operation stands, which plan fits, and get a personalized action plan in your inbox.",
+     QS, TIERS, "AI Readiness Assessment (content operations)",
+     DEMO, "Or book a live demo")
 
 if __name__ == "__main__":
     home(); segments(); brief(); assessment()

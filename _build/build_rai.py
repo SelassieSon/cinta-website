@@ -106,7 +106,7 @@ def hub():
 <p class="darkhero__sub" data-r data-rd="2">Your people are already using AI. The question is not whether to govern it. It is whether you govern it before or after something goes wrong.</p>
 <div class="darkhero__actions" data-r data-rd="3">
 <a href="#services" class="btn btn-primary btn-lg">See the offers {A}</a>
-<a href="{SCOPE}" class="btn" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35)">Request a scope</a></div>
+<a href="{RAI}/readiness.html" class="btn" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35)">Take the 2-minute readiness check</a></div>
 <div class="darkhero__quote" data-r><p>"Governance is not a constraint. It is the enabler of sustainable innovation."</p>
 <span>CoCr8 Labs × CINTA &amp; Co.</span></div></div></section>
 '''
@@ -168,8 +168,42 @@ def hub():
      "Operationalizing Responsible AI for Ontario organizations. Shadow AI audits, Algorithm Impact Assessments, workflow redesign, and ongoing governance.",
      HDR(), body, cobrand=True)
 
+def readiness():
+    QS = [
+     ("Do you know where AI is being used across your organization?",
+      ["No idea","A rough sense","Mostly mapped","Fully inventoried"]),
+     ("Do you have an approved AI use policy?",
+      ["None","In draft","Approved, not enforced","Approved and enforced"]),
+     ("Who owns AI decisions and accountability?",
+      ["No one clearly","Scattered across teams","A working group","A named owner with a board mandate"]),
+     ("How do you handle shadow AI (unsanctioned tools)?",
+      ["Unaddressed","Aware, no action","Guidance issued","Monitored and governed"]),
+     ("Have you assessed AI systems for bias and privacy impact?",
+      ["Never","Informally","Some systems","Formal assessments where needed"]),
+     ("How current are you on EDSTA and the IPC-OHRC principles?",
+      ["Unfamiliar","Heard of them","Reviewing them","Actively aligned"]),
+     ("Is there staff training on responsible AI use?",
+      ["None","Ad hoc","Some teams","Organization-wide"]),
+     ("How do you respond when an AI issue arises?",
+      ["No process","Case by case","An informal playbook","Defined incident response"]),
+    ]
+    TIERS = [
+     {"max":7,"t":"Exposed — start with a map","x":"AI is already in your organization, but it is ungoverned. The first move is a 90-minute Ecosystem Mapping Session to see your exposure and obligations before something goes wrong."},
+     {"max":13,"t":"Reactive — formalize the basics","x":"You have awareness but not structure. A formal Algorithm Impact Assessment, plus an approved and enforced policy, closes the gaps that matter most."},
+     {"max":19,"t":"Managing — tighten and sustain","x":"Good foundations, uneven in places. A Copilot Workflow Redesign and ongoing governance keep you current as regulation and tools keep moving."},
+     {"max":24,"t":"Governed — stay ahead","x":"You run a mature practice. An Execution System retainer keeps it current with quarterly reviews, policy updates, and incident response."},
+    ]
+    c.assessment_page("responsibleai","readiness",
+     "AI Governance Readiness Assessment | CoCr8 Labs × CINTA & Co.",
+     "An 8-question check of your AI governance maturity against EDSTA and the IPC-OHRC principles, with a personalized next step.",
+     HDR(), "AI governance readiness",
+     "Is your organization ready to","govern AI?",
+     "Eight questions, about two minutes. See where your AI governance stands against EDSTA and the IPC-OHRC principles, and what to shore up first.",
+     QS, TIERS, "AI Governance Readiness Assessment",
+     f"{RAI}/#scope", "Or request a full scope", cobrand=True)
+
 if __name__ == "__main__":
-    hub()
+    hub(); readiness()
     lander("ecosystem","Ecosystem Mapping Session","90-Minute Ecosystem Mapping Session | CoCr8 Labs × CINTA & Co.",
       "A 90-minute diagnostic that maps your AI exposure, obligations, and highest-priority governance gaps.",
       "Start here · 90-minute diagnostic",

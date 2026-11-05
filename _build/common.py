@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Shared chrome + helpers for the CINTA & Co. static site generator."""
 import os
+import json as _json
+import urllib.parse as _u
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -93,6 +95,7 @@ def header_www(active=""):
 
 def header_dark(offers_href, cta_label, cta_href, how="#how-it-works"):
     links = (f'<a href="{offers_href}">Offers</a>'
+             f'<a href="{RAI}/readiness.html">Readiness check</a>'
              f'<a href="{how}">How it works</a>'
              f'<a href="{cta_href}" class="btn btn-primary">{cta_label} {icon("arrow")}</a>')
     return (f'<header class="hdr hdr--dark"><div class="hdr__in">'
@@ -109,6 +112,7 @@ def header_ai(active=""):
     links = (f'<a href="{AIURL}/#how">How it works</a>'
              f'<a href="{AIURL}/#platform">Platform</a>'
              f'<a href="{AIURL}/#plans">Plans</a>'
+             f'<a href="{AIURL}/assessment.html">Assessment</a>'
              f'<a href="{AIURL}/#demo" class="btn btn-primary">Book a Demo {icon("arrow")}</a>')
     return (f'<header class="hdr"><div class="hdr__in">'
      f'<a href="{AIURL}/" class="logo" aria-label="CINTA & Co. — Facilitating Success">'
@@ -237,6 +241,81 @@ def embed_form(form_id, head_t, head_s, fields_html, submit_label, ok_title, ok_
      f'<p style="font-size:15px;color:var(--muted);line-height:1.6">{ok_text}</p>'
      f'</div></div></div>'
      f'{style}{_form_js(form_id, ok_id, intent)}')
+
+# ---- interactive assessment (quiz + lead capture) ----
+def assessment_page(prop, slug, title, desc, header_html, eyebrow, h1_lead, h1_accent,
+                    intro, questions, tiers, service_tag, cta_href, cta_label,
+                    cap_head="Get your personalized action plan",
+                    cap_sub="Your result, plus the moves that matter most for where you landed.",
+                    cobrand=False):
+    """Generic multi-step assessment. `questions` is a list of (prompt, [options])
+    scored by option index (0..n). `tiers` is a list of {max,t,x} ascending by max.
+    The result captures a lead (name+email) to the Apps Script endpoint (intent=lead),
+    tagged with service_tag and the computed result."""
+    qjson = _json.dumps([{"q": q, "a": opts} for q, opts in questions])
+    tjson = _json.dumps(tiers)
+    maxscore = sum(len(opts) - 1 for q, opts in questions)
+    msgid = slug + "-msg"
+    hero = ('<section class="darkhero" style="padding-bottom:56px"><div class="wrap">'
+     '<div class="kicker" data-r><span class="kicker__bar"></span>'
+     f'<span class="kicker__txt">{eyebrow}</span></div>'
+     f'<h1 data-r data-rd="1">{h1_lead} <span class="accent">{h1_accent}</span></h1>'
+     f'<p class="darkhero__sub" data-r data-rd="2">{intro}</p></div></section>')
+    capture = embed_form(slug + "-cap", cap_head, cap_sub,
+      (fld("contact_name", "Your name", "text", "Jane Doe", True) +
+       fld("contact_email", "Work email", "email", "jane@organization.ca", True) +
+       fld("org_name", "Organization", "text", "Organization name", False) +
+       f'<input type="hidden" name="message" id="{msgid}">'),
+      "Send me my action plan", "On its way",
+      "Thank you. Your result and action plan are on their way to your inbox, and we will follow up within one business day.",
+      intent="lead", hidden={"service_interest": service_tag},
+      fallback_subject=_u.quote(service_tag))
+    app = ('<section class="section"><div class="wrap" style="max-width:760px">'
+     '<div id="asmt" data-r>'
+     '<div id="bar" style="height:6px;background:var(--gray);border-radius:3px;overflow:hidden;margin-bottom:32px">'
+     '<div id="fill" style="height:100%;width:12.5%;background:var(--red);transition:width .3s"></div></div>'
+     '<div id="qbox"></div>'
+     '<div style="display:flex;justify-content:space-between;margin-top:28px">'
+     '<button id="prev" class="btn btn-secondary" style="visibility:hidden">Back</button>'
+     '<button id="next" class="btn btn-primary" disabled>Next</button></div></div>'
+     '<div id="result" style="display:none">'
+     '<div style="text-align:center">'
+     '<div class="icon-well" style="width:64px;height:64px;margin:0 auto 24px">' + icon("gauge") + '</div>'
+     '<p class="eyebrow" style="justify-content:center">Your result</p>'
+     '<h2 id="rtier" style="font-size:var(--fs-h1);margin:12px 0 16px"></h2>'
+     '<p id="rtext" style="font-size:17px;color:var(--text-body);line-height:1.7;max-width:560px;margin:0 auto 28px"></p>'
+     '</div>' + capture +
+     f'<p style="text-align:center;margin-top:18px"><a href="{cta_href}" class="textlink">{cta_label}</a>'
+     '  ·  <button id="restart" class="textlink" style="background:none;border:0;cursor:pointer;font:inherit;color:var(--red)">Start over</button></p>'
+     '</div></div></section>')
+    script = ('<script>(function(){'
+     'var Q=' + qjson + ';var T=' + tjson + ';'
+     'var MSGID=' + repr(msgid) + ',LABEL=' + repr(service_tag) + ',MAX=' + str(maxscore) + ';'
+     'var i=0,ans=Array(Q.length).fill(-1);'
+     'var qbox=document.getElementById("qbox"),fill=document.getElementById("fill"),'
+     'nextB=document.getElementById("next"),prevB=document.getElementById("prev"),'
+     'asmt=document.getElementById("asmt"),res=document.getElementById("result");'
+     'function render(){var q=Q[i];'
+     'var h=\'<p style="font-size:13px;font-weight:600;color:var(--brown);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Question \'+(i+1)+\' of \'+Q.length+\'</p>\';'
+     'h+=\'<h2 style="font-size:24px;margin-bottom:24px">\'+q.q+\'</h2><div style="display:flex;flex-direction:column;gap:12px">\';'
+     'q.a.forEach(function(o,k){var sel=ans[i]===k;'
+     'h+=\'<button class="opt" data-k="\'+k+\'" style="text-align:left;padding:16px 18px;border:1.5px solid \'+(sel?"var(--red)":"var(--gray)")+\';border-radius:var(--r-btn);background:\'+(sel?"var(--red-tint)":"#fff")+\';font-family:var(--ff);font-size:15px;color:var(--text);cursor:pointer;transition:all .15s">\'+o+\'</button>\';});'
+     'h+=\'</div>\';qbox.innerHTML=h;'
+     'fill.style.width=((i+1)/Q.length*100)+"%";'
+     'prevB.style.visibility=i===0?"hidden":"visible";'
+     'nextB.disabled=ans[i]<0;nextB.textContent=i===Q.length-1?"See result":"Next";'
+     'Array.prototype.forEach.call(qbox.querySelectorAll(".opt"),function(b){b.onclick=function(){ans[i]=+b.dataset.k;render();};});}'
+     'nextB.onclick=function(){if(ans[i]<0)return;if(i<Q.length-1){i++;render();}else{finish();}};'
+     'prevB.onclick=function(){if(i>0){i--;render();}};'
+     'function finish(){var s=ans.reduce(function(a,b){return a+b;},0);'
+     'var r=T.find(function(z){return s<=z.max;})||T[T.length-1];'
+     'asmt.style.display="none";res.style.display="block";'
+     'document.getElementById("rtier").textContent=r.t;'
+     'document.getElementById("rtext").textContent=r.x;'
+     'var m=document.getElementById(MSGID);if(m)m.value=LABEL+" result: "+r.t+" (score "+s+"/"+MAX+")";}'
+     'document.getElementById("restart").onclick=function(){i=0;ans=Array(Q.length).fill(-1);res.style.display="none";asmt.style.display="block";render();};'
+     'render();})();</script>')
+    return write(prop, slug + ".html", title, desc, header_html, hero + app + script, cobrand=cobrand)
 
 # ---- reusable fragment helpers ----
 def cta_red(heading, sub, label, href, on_red=True):
