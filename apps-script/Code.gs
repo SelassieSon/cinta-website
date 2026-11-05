@@ -79,6 +79,7 @@ function handleBooking_(d) {
   d.sector        = String(d.sector || '').trim();
   d.role          = String(d.role || '').trim();
   d.desired_timeframe = String(d.desired_timeframe || '').trim();
+  d.service_interest  = String(d.service_interest || '').trim();
 
   var persona = derivePersona_(d);
   var priority = CONFIG.PRIORITY_SECTORS.indexOf(d.sector) >= 0 ? 'PRIORITY' : 'STANDARD';
@@ -114,7 +115,8 @@ function handleConfirm_(e) {
       return htmlPage_('Link expired', 'That booking link is no longer valid. Reply to your email and we will help you book.');
     }
     var d = { contact_email: email, contact_name: p.n || '', org_name: p.o || '',
-              website: p.w || '', sector: p.s || '', role: p.r || '', desired_timeframe: '' };
+              website: p.w || '', sector: p.s || '', role: p.r || '', desired_timeframe: '',
+              service_interest: p.si || '' };
     var persona = derivePersona_(d);
     var priority = CONFIG.PRIORITY_SECTORS.indexOf(d.sector) >= 0 ? 'PRIORITY' : 'STANDARD';
     var cal = CalendarApp.getCalendarById(CONFIG.CALENDAR_ID) || CalendarApp.getDefaultCalendar();
@@ -154,6 +156,7 @@ function createBooking_(cal, d, persona, priority, start) {
       'Ecosystem Mapping Session (90 min)\n' +
       'Organization: ' + d.org_name + '\nWebsite: ' + d.website + '\n' +
       'Sector: ' + d.sector + '  (' + priority + ')\n' +
+      (d.service_interest ? 'Service of interest: ' + d.service_interest + '\n' : '') +
       'Contact: ' + d.contact_name + ' <' + d.contact_email + '>\n' +
       'Role: ' + d.role + '\nPersona: ' + persona + '\n';
 
@@ -235,7 +238,7 @@ function sign_(s) {
 function confirmUrl_(d, startIso) {
   var base = ScriptApp.getService().getUrl();
   var q = { action: 'confirm', e: d.contact_email, n: d.contact_name, o: d.org_name,
-            w: d.website, s: d.sector, r: d.role, t: startIso,
+            w: d.website, s: d.sector, r: d.role, si: d.service_interest || '', t: startIso,
             sig: sign_(d.contact_email + '|' + startIso) };
   return base + '?' + Object.keys(q).map(function (k) {
     return encodeURIComponent(k) + '=' + encodeURIComponent(q[k]); }).join('&');
@@ -338,7 +341,9 @@ function notifyInternal_(d, priority, start, meet, folderUrl) {
     '[' + priority + '] Booked: ' + (d.org_name || d.contact_email) + ' — ' + fmt_(start),
     ['New Ecosystem Mapping Session booked.', '',
      'Organization: ' + d.org_name, 'Contact: ' + d.contact_name + ' <' + d.contact_email + '>',
-     'Sector: ' + d.sector + ' (' + priority + ')', 'When: ' + fmt_(start),
+     'Sector: ' + d.sector + ' (' + priority + ')',
+     (d.service_interest ? 'Service of interest: ' + d.service_interest : ''),
+     'When: ' + fmt_(start),
      (meet ? 'Meet: ' + meet : ''), (folderUrl ? 'Folder: ' + folderUrl : '')
     ].filter(String).join('\n'), { name: 'CINTA Booking Bot' });
 }

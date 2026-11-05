@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import urllib.parse as _u
 import common as c
 from common import icon, WWW, RAI, AIURL, INS, LI
 
@@ -224,7 +225,7 @@ def sectors():
         out += f'''<section class="section{altcls}" id="{sid}"><div class="wrap"><div class="split">
 <div data-r><div class="card__icon icon-well" style="margin-bottom:22px">{icon(ic)}</div>
 <h2>{title}</h2><p style="font-size:15px;font-weight:600;color:var(--brown);margin:-8px 0 20px">{sub}</p>
-{pblock}<div style="margin-top:30px"><a href="{WWW}/contact.html" class="btn btn-secondary">Talk to us about this sector {A}</a></div></div>
+{pblock}<div style="margin-top:30px"><a href="{WWW}/contact.html?sector={_u.quote(title.replace("&amp;","&"))}" class="btn btn-secondary">Talk to us about this sector {A}</a></div></div>
 <div class="card" data-r data-rd="1"><p class="card__eyebrow">The compounding challenges</p>
 <ul style="display:flex;flex-direction:column;gap:0;margin-top:8px">{cblock}</ul>
 <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--gray)">
@@ -255,7 +256,9 @@ def services():
     def svc(title, txt, feature=False):
         fc = " card--feature" if feature else ""
         eb = '<p class="card__eyebrow">New offering</p>' if feature else ''
-        return f'<div class="card{fc}" data-r>{eb}<h3>{title}</h3><p class="card__txt">{txt}</p></div>'
+        q = _u.quote(title.replace('&amp;', '&'))
+        cta = f'<a href="{WWW}/contact.html?service={q}" class="textlink" style="margin-top:16px">Book a session {A}</a>'
+        return f'<div class="card{fc}" data-r>{eb}<h3>{title}</h3><p class="card__txt">{txt}</p>{cta}</div>'
     DOM = [
         ("transformation","01","Leadership &amp; Transformation",
          "Change fails because it triggers a threat response, not because people are stubborn. We apply NeuroLeadership Institute principles to move teams from fear-based resistance to purpose-driven adoption. This remains CINTA's most distinctive capability.",
@@ -358,7 +361,8 @@ def contact():
 </div></div></div>
 <div data-r data-rd="1">
 <div class="embed"><div class="embed__head"><p class="embed__head-t">Book your session</p>
-<p class="embed__head-s">A few details and we take care of the scheduling.</p></div>
+<p class="embed__head-s">A few details and we take care of the scheduling.</p>
+<p id="book-focus" style="display:none;margin-top:10px;font-weight:700;color:#fff;font-size:14px"></p></div>
 <div style="padding:32px;background:#fff">
 <form id="book-form" novalidate>{formfields}
 <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:6px">Book your session {A}</button>
@@ -381,6 +385,18 @@ def contact():
   var WEBHOOK = {c.BOOKING_WEBHOOK!r};
   var f=document.getElementById("book-form");if(!f)return;
   function uuid(){{return 'web-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);}}
+  // Carry service/sector context from the CTA link into the booking
+  var params=new URLSearchParams(location.search);
+  var svc=params.get("service"), sec=params.get("sector");
+  if(svc){{
+    var fo=document.getElementById("book-focus");
+    if(fo){{fo.textContent="Focus: "+svc;fo.style.display="block";}}
+    var hid=document.createElement("input");hid.type="hidden";hid.name="service_interest";hid.value=svc;f.appendChild(hid);
+  }}
+  if(sec){{
+    var sel=f.querySelector("select[name=sector]");
+    if(sel){{for(var i=0;i<sel.options.length;i++){{if(sel.options[i].text.replace(/&amp;/g,"&")===sec){{sel.selectedIndex=i;break;}}}}}}
+  }}
   f.addEventListener("submit",function(e){{
     e.preventDefault();
     if(!f.checkValidity()){{f.reportValidity();return;}}
