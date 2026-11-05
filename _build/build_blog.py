@@ -40,15 +40,16 @@ def render_md(body):
     return _md.markdown(body, extensions=["extra", "sane_lists", "smarty"])
 
 ARTICLE_CSS = """<style>
+.post-head,.post-body,.post-tags,.post-wrap,.post-cover{box-sizing:border-box}
 .post-hero{background:var(--ink,#1a1a1a);color:#fff;padding:0}
 .post-wrap{max-width:760px;margin:0 auto;padding:0 24px}
-.post-head{padding:56px 0 32px;max-width:760px;margin:0 auto}
+.post-head{padding:56px 24px 32px;max-width:768px;margin:0 auto}
 .post-cat{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
 .post-title{font-size:clamp(28px,4vw,42px);line-height:1.15;margin:12px 0 16px;font-weight:700}
 .post-meta{font-size:14px;color:var(--muted)}
-.post-cover{width:100%;max-width:980px;margin:0 auto 8px;display:block}
+.post-cover{width:100%;max-width:980px;margin:0 auto 8px;padding:0 24px;display:block}
 .post-cover img{width:100%;height:auto;border-radius:6px;display:block}
-.post-body{font-size:18px;line-height:1.75;color:var(--text-body);max-width:720px;margin:0 auto;padding:16px 0 8px}
+.post-body{font-size:18px;line-height:1.75;color:var(--text-body);max-width:768px;margin:0 auto;padding:16px 24px 8px}
 .post-body p{margin:0 0 22px}
 .post-body h1,.post-body h2,.post-body h3,.post-body h4{line-height:1.25;margin:40px 0 14px;color:var(--text)}
 .post-body h1{font-size:30px}.post-body h2{font-size:26px}.post-body h3{font-size:21px}.post-body h4{font-size:18px}
@@ -59,7 +60,7 @@ ARTICLE_CSS = """<style>
 .post-body blockquote{margin:24px 0;padding:6px 20px;border-left:4px solid var(--red);color:var(--text);font-style:italic}
 .post-body hr{border:0;border-top:1px solid var(--gray);margin:32px 0}
 .post-body code{background:var(--gray);padding:2px 6px;border-radius:4px;font-size:.9em}
-.post-tags{max-width:720px;margin:28px auto 0;display:flex;flex-wrap:wrap;gap:8px}
+.post-tags{max-width:768px;margin:28px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;gap:8px}
 .post-tags span{font-size:12px;color:var(--muted);border:1px solid var(--gray);border-radius:999px;padding:5px 12px}
 .post-byline{display:flex;align-items:center;gap:10px;margin-top:10px}
 </style>"""
