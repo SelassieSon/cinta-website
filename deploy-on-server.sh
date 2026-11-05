@@ -142,6 +142,8 @@ PUBLISH_GH_TOKEN=
 PUBLISH_REPO=SelassieSon/cinta-website
 # true = AI posts wait for review in /admin; false = AI posts go live
 PUBLISH_DEFAULT_DRAFT=true
+# Only these brands may publish here; anything else is rejected (403).
+PUBLISH_ALLOWED_BRANDS=cinta,cinta-ai,cocr8
 PUBLISH_PORT=8788
 ENV
       chmod 600 /etc/cinta-publish.env

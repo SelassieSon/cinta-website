@@ -18,8 +18,11 @@ Reads from the environment (see /etc/cinta-publish.env):
 
 Request:  POST /publish
   Headers: Authorization: Bearer <PUBLISH_SECRET>, Content-Type: application/json
-  Body:    {"title","body"(markdown),"slug"?,"author"?,"categories"?[],
-            "tags"?[],"cover"?,"excerpt"?,"minutes"?,"date"?(ISO),"draft"?(bool)}
+  Body:    {"brand"(required: cinta|cinta-ai|cocr8),"title","body"(markdown),
+            "slug"?,"author"?,"categories"?[],"tags"?[],"cover"?,"excerpt"?,
+            "minutes"?,"date"?(ISO),"draft"?(bool)}
+           Posts whose brand is not in PUBLISH_ALLOWED_BRANDS are rejected (403),
+           so other clients' content can never reach this blog.
 Response: {"ok":true,"slug":...,"draft":bool,"url":... | null}
 """
 import os, re, json, hmac, subprocess, datetime
@@ -31,6 +34,12 @@ TOKEN = os.environ.get("PUBLISH_GH_TOKEN", "")
 REPO_SLUG = os.environ.get("PUBLISH_REPO", "SelassieSon/cinta-website")
 PORT = int(os.environ.get("PUBLISH_PORT", "8788"))
 DEFAULT_DRAFT = os.environ.get("PUBLISH_DEFAULT_DRAFT", "true").lower() == "true"
+# Only posts whose "brand" is in this allowlist are accepted, so a misconfigured
+# CINTA AI pipeline can never push another client's content to this blog.
+ALLOWED_BRANDS = set(
+    b.strip().lower() for b in
+    os.environ.get("PUBLISH_ALLOWED_BRANDS", "cinta,cinta-ai,cinta & co.,cocr8").split(",")
+    if b.strip())
 SITE = "https://insights.cintaconsulting.com"
 
 
@@ -112,6 +121,10 @@ class Handler(BaseHTTPRequestHandler):
             d = json.loads(self.rfile.read(n).decode() or "{}")
         except Exception as e:
             return self._json(400, {"ok": False, "error": "bad json: " + str(e)})
+        brand = str(d.get("brand", "")).strip().lower()
+        if ALLOWED_BRANDS and brand not in ALLOWED_BRANDS:
+            return self._json(403, {"ok": False, "error": "brand not allowed",
+                                    "brand": brand, "allowed": sorted(ALLOWED_BRANDS)})
         try:
             return self._json(200, publish(d))
         except ValueError as e:
