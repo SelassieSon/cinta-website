@@ -344,15 +344,15 @@ def contact():
      f'<label class="fld"><span class="fld__l">Ideal timing</span><select name="desired_timeframe">{tfopts}</select></label>')
     body = f'''<section class="section"><div class="wrap"><div class="split">
 <div data-r>
-<h2>The Ecosystem Mapping Session</h2>
+<h2 id="book-left-h2">The Ecosystem Mapping Session</h2>
 <p>Ninety minutes with a senior practitioner. We map your landscape, surface the pressures that matter most, and give you a clear read on priority actions. Some leaders take that clarity and run with it. Most decide they want a partner for the journey. Either outcome is a good one.</p>
 <ul class="checklist">
 <li>{icon("check")} A clear map of your current ecosystem and pressure points</li>
 <li>{icon("check")} Priorities ranked by impact and readiness, not noise</li>
 <li>{icon("check")} A concrete recommendation you can act on, with or without us</li></ul>
 <div class="panel-dark" style="margin-top:8px">
-<p class="card__eyebrow">Ecosystem Mapping Session</p>
-<h3>A 90-minute diagnostic with a senior practitioner</h3>
+<p class="card__eyebrow" id="book-panel-eb">Ecosystem Mapping Session</p>
+<h3 id="book-panel-h3">A 90-minute diagnostic with a senior practitioner</h3>
 <p>Submit the form and we confirm your session by email, with the calendar invite and your intake folder. Priority-sector bookings are scheduled automatically.</p>
 <div class="panel-dark__meta">
 <div><div class="panel-dark__meta-n">90<span class="u"> min</span></div><div class="panel-dark__meta-l">Focused session</div></div>
@@ -371,7 +371,7 @@ def contact():
 <div id="book-ok" style="display:none;text-align:center;padding:24px 8px">
 <div class="icon-well" style="width:56px;height:56px;margin:0 auto 20px">{icon("check")}</div>
 <h3 style="font-size:20px;margin-bottom:10px">Request received</h3>
-<p style="font-size:15px;color:var(--muted);line-height:1.6">Thank you. We will confirm your Ecosystem Mapping Session by email, with the calendar invite and your intake folder, within one business day.</p>
+<p style="font-size:15px;color:var(--muted);line-height:1.6">Thank you. We will confirm your session by email, with the calendar invite and your intake folder, within one business day.</p>
 </div></div></div></div>
 </div></div>
 <style>
@@ -397,7 +397,11 @@ def contact():
   if(svc){{
     showFocus(svc);
     var hid=document.createElement("input");hid.type="hidden";hid.name="service_interest";hid.value=svc;f.appendChild(hid);
-    setHero(svc,"Every CINTA engagement starts with a 90-minute Ecosystem Mapping Session, a focused diagnostic so we understand your situation before we recommend anything. Tell us about your "+svc+" priorities and we take care of the scheduling.");
+    setHero(svc,"Ninety minutes with a senior practitioner to scope your "+svc+" priorities, surface what is in the way, and leave you with a clear recommendation on where to start.");
+    var e;
+    if(e=document.getElementById("book-left-h2")) e.textContent="Scoping your "+svc;
+    if(e=document.getElementById("book-panel-eb")) e.textContent=svc+" scoping session";
+    if(e=document.getElementById("book-panel-h3")) e.textContent="A focused 90-minute session with a senior practitioner";
   }}
   if(sec){{
     var sel=f.querySelector("select[name=sector]");
