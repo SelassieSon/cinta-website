@@ -185,6 +185,8 @@ def build():
     posts = []
     for f in files:
         meta, body = parse(f)
+        if str(meta.get("draft", "")).lower() == "true" or meta.get("draft") is True:
+            continue  # unpublished draft: skip from the live site
         slug = meta.get("slug") or os.path.basename(f)[:-3]
         if not meta.get("excerpt"):
             meta["excerpt"] = derive_excerpt(body)

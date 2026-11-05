@@ -42,4 +42,6 @@ collections:
       - { label: "Excerpt", name: "excerpt", widget: "text", required: false,
           hint: "One or two sentences for the listing. Leave blank to auto-generate." }
       - { label: "Original Wix path", name: "wix_path", widget: "hidden", required: false }
+      - { label: "Draft (hidden from the site until unchecked)", name: "draft",
+          widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }

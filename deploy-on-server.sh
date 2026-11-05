@@ -131,8 +131,41 @@ UNIT
     systemctl enable --now cinta-oauth
     systemctl restart cinta-oauth
 
+    # 1b) Publish endpoint for the CINTA AI marketing system
+    cp "$REPO_DIR/cms-auth/publish.py" /opt/cinta-oauth/publish.py
+    if [ ! -f /etc/cinta-publish.env ]; then
+      cat > /etc/cinta-publish.env <<'ENV'
+# Shared secret CINTA AI sends as "Authorization: Bearer <PUBLISH_SECRET>"
+PUBLISH_SECRET=
+# GitHub token with contents:write on SelassieSon/cinta-website (for push)
+PUBLISH_GH_TOKEN=
+PUBLISH_REPO=SelassieSon/cinta-website
+# true = AI posts wait for review in /admin; false = AI posts go live
+PUBLISH_DEFAULT_DRAFT=true
+PUBLISH_PORT=8788
+ENV
+      chmod 600 /etc/cinta-publish.env
+      echo "  >> created /etc/cinta-publish.env — add PUBLISH_SECRET + PUBLISH_GH_TOKEN, then: systemctl restart cinta-publish"
+    fi
+    cat > /etc/systemd/system/cinta-publish.service <<'UNIT'
+[Unit]
+Description=CINTA AI blog publish endpoint
+After=network-online.target
+Wants=network-online.target
+[Service]
+EnvironmentFile=/etc/cinta-publish.env
+ExecStart=/usr/bin/python3 /opt/cinta-oauth/publish.py
+Restart=always
+User=root
+[Install]
+WantedBy=multi-user.target
+UNIT
+    systemctl daemon-reload
+    systemctl enable --now cinta-publish
+    systemctl restart cinta-publish
+
     # 2) Auto-rebuild cron (every 5 min, only redeploys insights when main changes)
-    chmod +x "$REPO_DIR/cms-auth/autodeploy.sh"
+    chmod +x "$REPO_DIR/cms-auth/autodeploy.sh" "$REPO_DIR/cms-auth/rebuild.sh"
     cat > /etc/cron.d/cinta-cms <<'CRON'
 */5 * * * * root /opt/cinta-website/cms-auth/autodeploy.sh >> /var/log/cinta-cms.log 2>&1
 CRON
@@ -150,6 +183,9 @@ insights.cintaconsulting.com {
     redir @oldpost /{re.op.1}.html 301
     handle /oauth/* {
         reverse_proxy 127.0.0.1:8787
+    }
+    handle /publish* {
+        reverse_proxy 127.0.0.1:8788
     }
     handle {
         root * /var/www/insights
