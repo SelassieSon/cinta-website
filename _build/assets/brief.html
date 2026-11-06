@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Does Your Organization Stand? | CINTA & Co.</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23D04747'/%3E%3Ctext x='16' y='24' font-family='Arial%2C Helvetica%2C sans-serif' font-weight='900' font-size='22' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D04747;
+    --brown: #944026;
+    --black: #000000;
+    --white: #FFFFFF;
+    --gray-light: #E6E6E6;
+    --gray-mid: #999;
+    --gray-dark: #333;
+    --soft-red: #F5E8E8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── FLOATING NAV ── */
+  nav#mainNav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s ease;
+  }
+  nav#mainNav.scrolled {
+    box-shadow: 0 2px 20px rgba(0,0,0,0.10);
+  }
+  /* Red top rule baked into nav */
+  nav#mainNav::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: var(--red);
+  }
+  .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 60px;
+  }
+  .nav-placeholder {
+    height: 73px; /* matches nav height so content doesn't jump under it */
+  }
+  .nav-logo {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .nav-logo .wordmark {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .nav-logo .tagline {
+    font-size: 7.5px;
+    font-weight: 500;
+    color: var(--brown);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nav-meta {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+  }
+
+  /* ── HAMBURGER BUTTON ── */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 17px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .hamburger span {
+    display: block;
+    height: 2px;
+    background: var(--black);
+    border-radius: 1px;
+    transition: all 0.25s ease;
+    transform-origin: center;
+  }
+  /* Active (open) state — morph into X */
+  .hamburger.open span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+  }
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .hamburger.open span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+  }
+
+  /* ── NAV DRAWER ── */
+  .nav-drawer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.32s ease;
+    padding: 0 60px;
+    border-top: 0px solid var(--gray-light);
+  }
+  .nav-drawer.open {
+    max-height: 60px;
+    padding: 12px 60px;
+    border-top-width: 1px;
+  }
+  .nav-link {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    padding: 6px 16px;
+    border-right: 1px solid var(--gray-light);
+    white-space: nowrap;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-link:first-child { padding-left: 0; }
+  .nav-link:last-child  { border-right: none; }
+  .nav-link:hover       { color: var(--red); }
+  .nav-link.nav-link-cta {
+    color: var(--red);
+    font-weight: 800;
+  }
+  .nav-link.nav-link-cta:hover { color: var(--brown); }
+  /* Active section highlight */
+  .nav-link.active { color: var(--red); }
+
+  @media (max-width: 768px) {
+    .nav-inner { padding: 14px 24px; }
+    .nav-meta   { display: none; }
+    .nav-drawer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      padding: 0 24px;
+    }
+    .nav-drawer.open {
+      max-height: 360px;
+      padding: 10px 24px 16px;
+    }
+    .nav-link {
+      border-right: none;
+      border-bottom: 1px solid var(--gray-light);
+      padding: 10px 0;
+      width: 100%;
+      font-size: 11px;
+    }
+    .nav-link:last-child { border-bottom: none; }
+    .nav-placeholder { height: 65px; }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 60px 70px;
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 28px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 2px;
+    background: var(--red);
+  }
+  .hero h1 {
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -1.5px;
+    color: var(--black);
+    margin-bottom: 28px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--gray-dark);
+    max-width: 680px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+  }
+  .hero-attribution {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--gray-light);
+    display: inline-flex;
+  }
+  .hero-attribution .attr-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+  }
+  .hero-attribution .attr-source {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--black);
+  }
+  .divider-line {
+    width: 1px;
+    height: 32px;
+    background: var(--gray-mid);
+    opacity: 0.4;
+  }
+
+  /* ── SECTION STRUCTURE ── */
+  section {
+    padding: 70px 60px;
+    border-top: 1px solid var(--gray-light);
+  }
+
+  .section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    color: var(--black);
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+
+  .section-body {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--gray-dark);
+    line-height: 1.75;
+    max-width: 760px;
+    margin-bottom: 16px;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    border-left: 4px solid var(--red);
+    background: var(--soft-red);
+    padding: 20px 24px;
+    margin: 32px 0;
+    max-width: 760px;
+  }
+  .callout p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1.65;
+  }
+  .callout strong { color: var(--red); }
+
+  /* ── MIT FRAMEWORK ── */
+  .framework-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    margin: 40px 0;
+    max-width: 900px;
+  }
+
+  .model-card {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    padding: 32px 28px;
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+  .model-card:hover {
+    border-color: var(--red);
+    box-shadow: 0 4px 20px rgba(208,71,71,0.1);
+  }
+  .model-card.highlighted {
+    background: var(--black);
+    border-color: var(--black);
+  }
+  .model-card.highlighted .model-number,
+  .model-card.highlighted .model-name,
+  .model-card.highlighted .model-desc {
+    color: var(--white);
+  }
+  .model-card.highlighted .model-tag {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  .model-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+  }
+  .model-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--black);
+    margin-bottom: 10px;
+  }
+  .model-desc {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--gray-dark);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .model-example {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-mid);
+    font-style: italic;
+    padding-top: 14px;
+    border-top: 1px solid var(--gray-light);
+  }
+  .model-card.highlighted .model-example {
+    border-top-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+  }
+  .model-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: var(--soft-red);
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+
+  /* ── PROGRESSION DIAGRAM ── */
+  .progression {
+    margin: 40px 0;
+    max-width: 900px;
+  }
+  .progression-track {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 0;
+  }
+  .prog-step {
+    padding: 24px 20px;
+    border: 1px solid var(--gray-light);
+    text-align: center;
+  }
+  .prog-step.active {
+    border-color: var(--red);
+    border-width: 2px;
+  }
+  .prog-step.target {
+    background: var(--red);
+  }
+  .prog-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 6px;
+  }
+  .prog-step.active .prog-label { color: var(--red); }
+  .prog-step.target .prog-label { color: rgba(255,255,255,0.7); }
+  .prog-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--black);
+    letter-spacing: -0.3px;
+  }
+  .prog-step.target .prog-name { color: var(--white); }
+  .prog-arrow {
+    font-size: 18px;
+    color: var(--gray-mid);
+    padding: 0 8px;
+    text-align: center;
+  }
+  .prog-arrow.active-arrow { color: var(--red); }
+
+  /* ── DIAGNOSTIC SELF-ASSESSMENT ── */
+  .diagnostic {
+    background: var(--black);
+    color: var(--white);
+    padding: 60px;
+    margin: 0 -60px;
+  }
+  .diagnostic .section-label { color: rgba(255,255,255,0.5); }
+  .diagnostic .section-title { color: var(--white); }
+  .diagnostic .section-body { color: rgba(255,255,255,0.7); }
+
+  .question-set {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 840px;
+  }
+  .question-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 24px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .question-item:hover {
+    background: rgba(208,71,71,0.12);
+    border-color: rgba(208,71,71,0.3);
+  }
+  .question-item.selected {
+    background: rgba(208,71,71,0.15);
+    border-color: var(--red);
+  }
+  .q-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .question-item.selected .q-checkbox {
+    background: var(--red);
+    border-color: var(--red);
+  }
+  .q-checkmark {
+    display: none;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .question-item.selected .q-checkmark { display: block; }
+
+  .q-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.55;
+  }
+  .q-stage {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .diagnostic-result {
+    margin-top: 24px;
+    padding: 24px 28px;
+    background: var(--red);
+    max-width: 840px;
+    display: none;
+  }
+  .diagnostic-result.visible { display: block; }
+  .result-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 8px;
+  }
+  .result-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .result-sub {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.6;
+  }
+
+  /* ── CINTA APPROACH ── */
+  .approach-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin: 40px 0;
+    max-width: 900px;
+  }
+  .approach-card {
+    padding: 32px 24px;
+    border: 1px solid var(--gray-light);
+    position: relative;
+  }
+  .approach-card::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: var(--red);
+    margin-bottom: 24px;
+  }
+  .approach-number {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--gray-light);
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -2px;
+  }
+  .approach-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .approach-desc {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray-dark);
+    line-height: 1.65;
+  }
+
+  /* ── PROOF BAND ── */
+  .proof-band {
+    background: var(--gray-light);
+    padding: 50px 60px;
+    margin: 0 -60px;
+  }
+  .proof-inner {
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr 1px 1fr;
+    gap: 0;
+    align-items: center;
+  }
+  .proof-item {
+    padding: 0 40px;
+    text-align: center;
+  }
+  .proof-item:first-child { padding-left: 0; }
+  .proof-item:last-child { padding-right: 0; }
+  .proof-divider {
+    background: rgba(0,0,0,0.15);
+    height: 60px;
+    align-self: center;
+  }
+  .proof-stat {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--red);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .proof-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--black);
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    padding: 80px 60px;
+    border-top: 1px solid var(--gray-light);
+  }
+  .cta-inner {
+    max-width: 680px;
+  }
+  .cta-section .section-label { color: var(--red); }
+  .cta-heading {
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: var(--black);
+    margin-bottom: 20px;
+  }
+  .cta-heading em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .cta-sub {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--gray-dark);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    background: var(--red);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .btn-primary:hover { background: #b83c3c; }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1.5px solid var(--black);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-secondary:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--gray-light);
+    padding: 28px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-logo {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: -0.3px;
+  }
+  .footer-meta {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--gray-mid);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .footer-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--brown);
+    text-transform: uppercase;
+  }
+
+  /* ── MIT SOURCE BADGE ── */
+  .source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: 1px solid var(--gray-light);
+    margin-top: 32px;
+  }
+  .source-badge .badge-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .source-badge .badge-icon span {
+    font-size: 10px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+  .source-badge .badge-text {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    line-height: 1.3;
+  }
+  .source-badge .badge-text small {
+    display: block;
+    font-weight: 400;
+    color: var(--gray-mid);
+    font-size: 9px;
+  }
+
+  /* ── ANIMATION ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero h1, .hero-sub, .hero-eyebrow {
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-eyebrow { animation-delay: 0.05s; }
+  .hero h1      { animation-delay: 0.15s; }
+  .hero-sub     { animation-delay: 0.25s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav, section, .hero, .cta-section, footer, .diagnostic, .proof-band {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    .diagnostic, .proof-band { margin: 0 -24px; }
+    .framework-grid { grid-template-columns: 1fr; }
+    .approach-grid { grid-template-columns: 1fr; }
+    .progression-track { grid-template-columns: 1fr; }
+    .prog-arrow { display: none; }
+    .proof-inner { grid-template-columns: 1fr; gap: 24px; }
+    .proof-divider { display: none; }
+    .proof-item { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.cintaconsulting.com/" style="text-decoration:none">
+      <span class="wordmark">CINTA & Co.</span>
+      <span class="tagline">Facilitating Success</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-meta">Executive Intelligence Brief · March 2026</div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile + desktop drawer -->
+  <div class="nav-drawer" id="navDrawer">
+    <a class="nav-link" href="#sec-hero">Overview</a>
+    <a class="nav-link" href="#sec-research">The Research</a>
+    <a class="nav-link" href="#sec-framework">MIT Framework</a>
+    <a class="nav-link" href="#sec-reality">Ontario Reality</a>
+    <a class="nav-link" href="#diagnostic">Self-Assessment</a>
+    <a class="nav-link" href="#sec-approach">CINTA Approach</a>
+    <a class="nav-link nav-link-cta" href="https://cintaai.cintaconsulting.com/assessment/">Take the Assessment</a>
+  </div>
+</nav>
+<div class="nav-placeholder"></div>
+
+<!-- HERO -->
+<div class="hero" id="sec-hero">
+  <div class="hero-eyebrow">Agentic AI & Business Strategy</div>
+  <h1>Where Does Your<br>Organization Stand in<br>the <em>Agentic AI Era?</em></h1>
+  <p class="hero-sub">
+    MIT researchers have identified four business model archetypes that define how organizations capture value in an era of autonomous AI. Most mid-market Ontario companies are stuck at Stage One — often without knowing it.
+  </p>
+  <div class="hero-attribution">
+    <div>
+      <div class="attr-label">Research Source</div>
+      <div class="attr-source">MIT Center for Information Systems Research</div>
+    </div>
+    <div class="divider-line"></div>
+    <div>
+      <div class="attr-label">Study Base</div>
+      <div class="attr-source">2,378 Companies · 2013–2025</div>
+    </div>
+    <div class="divider-line"></div>
+    <div>
+      <div class="attr-label">Published</div>
+      <div class="attr-source">October 2025</div>
+    </div>
+  </div>
+</div>
+
+<!-- THE RESEARCH -->
+<section id="sec-research">
+  <div class="section-label">The Research</div>
+  <h2 class="section-title">MIT CISR Has Mapped the Transformation — and Most Organizations Are Behind</h2>
+  <p class="section-body">
+    A landmark study from MIT's Center for Information Systems Research — drawing on 12 years of data across nearly 2,400 companies — has produced the most rigorous framework yet for understanding how businesses are (and aren't) adapting to agentic AI. The findings are instructive for any leadership team trying to separate signal from noise in the AI conversation.
+  </p>
+  <p class="section-body">
+    The researchers identified four distinct business model positions. These aren't aspirational categories — they describe where organizations actually are, and what they need to move forward. The gap between organizations at Stage One and those at Stages Three and Four is compounding rapidly.
+  </p>
+
+  <div class="callout">
+    <p>
+      <strong>Research finding:</strong> Ecosystem Driver was the only digital business model in 2025 with above-industry-average revenue growth — outperforming by six percentage points. The pattern is consistent: companies that structurally redesign how work happens outperform those that layer AI onto legacy processes. The question isn't whether to adopt agentic AI — it's whether you're building on a foundation that can scale.
+    </p>
+  </div>
+
+  <a class="source-badge" href="https://mitsloan.mit.edu/ideas-made-to-matter/how-digital-business-models-are-evolving-age-agentic-ai" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+    <div class="badge-icon"><span>MIT</span></div>
+    <div class="badge-text">
+      Business Models in the AI Era
+      <small>Weill, Sebastian, Woerner & Benedict · MIT CISR · October 2025 ↗</small>
+    </div>
+  </a>
+</section>
+
+<!-- THE FOUR MODELS -->
+<section id="sec-framework">
+  <div class="section-label">The MIT CISR Framework</div>
+  <h2 class="section-title">Four Business Model Archetypes for the Agentic AI Era</h2>
+  <p class="section-body">
+    Each archetype reflects a different answer to two fundamental questions: Does your organization merely assist customers, or can it represent their goals through autonomous action? Is your execution built on a structured process, or can AI adapt that process based on outcomes?
+  </p>
+
+  <div class="framework-grid">
+
+    <div class="model-card">
+      <div class="model-tag">Stage 01</div>
+      <div class="model-number">Model 01 of 04</div>
+      <div class="model-name">Existing+</div>
+      <div class="model-desc">
+        AI augments an existing business model without fundamentally changing it. The process stays the same — AI makes it faster, cheaper, or slightly smarter. Human experts still drive every decision.
+      </div>
+      <div class="model-example">
+        Example: Using AI to summarize meeting notes, generate first-draft emails, or surface relevant data in a CRM. Valuable — but not transformative.
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-tag">Stage 02</div>
+      <div class="model-number">Model 02 of 04</div>
+      <div class="model-name">Customer Proxy</div>
+      <div class="model-desc">
+        AI executes predefined processes on behalf of customers, achieving outcomes autonomously within guardrails set by the organization. The process is fixed; AI handles execution.
+      </div>
+      <div class="model-example">
+        Example: AI agents that handle plan upgrades, create service tickets, or respond to FAQs — entirely without human intervention, within defined boundaries.
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-tag">Stage 03</div>
+      <div class="model-number">Model 03 of 04</div>
+      <div class="model-name">Modular Curator</div>
+      <div class="model-desc">
+        AI assembles reusable modules — including third-party capabilities — to pursue customer outcomes with no predetermined process. The AI selects and sequences the right tools based on context.
+      </div>
+      <div class="model-example">
+        Example: AI that monitors demand forecasts, surfaces supply constraints, and recommends operational responses by dynamically combining internal data and external APIs.
+      </div>
+    </div>
+
+    <div class="model-card highlighted">
+      <div class="model-tag">Stage 04 — Target State</div>
+      <div class="model-number">Model 04 of 04</div>
+      <div class="model-name">Orchestrator</div>
+      <div class="model-desc">
+        AI assembles an entire ecosystem of complementary products and services to achieve customer outcomes. No predetermined process. The organization sets goals and guardrails; AI determines the path.
+      </div>
+      <div class="model-example">
+        Example: One New Zealand — future vision for AI agents to create personalized marketing campaigns and adapt them in real-time based on customer behaviour, with marketing teams setting goals and guardrails and humans overseeing strategy only.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- THE REALITY CHECK -->
+<section id="sec-reality">
+  <div class="section-label">The Ontario Reality</div>
+  <h2 class="section-title">Most Organizations Are Stuck at Stage One — and Calling It Innovation</h2>
+  <p class="section-body">
+    Across the mid-market B2B landscape in Ontario, the pattern is consistent: AI adoption is happening at the edges. Teams use ChatGPT to draft proposals. Marketing uses generative tools to speed up copy. Sales uses AI-assisted CRM notes. These are real efficiency gains — but they represent Stage One thinking applied to Stage One problems.
+  </p>
+  <p class="section-body">
+    The organizations that will dominate their categories over the next three years are not the ones using AI to do the same things faster. They are the ones redesigning how work actually happens — building processes that AI can own, not just assist.
+  </p>
+
+  <div class="progression">
+    <div class="progression-track">
+      <div class="prog-step active">
+        <div class="prog-label">Most orgs today</div>
+        <div class="prog-name">Existing+</div>
+      </div>
+      <div class="prog-arrow active-arrow">→</div>
+      <div class="prog-step">
+        <div class="prog-label">Year 1</div>
+        <div class="prog-name">Customer Proxy</div>
+      </div>
+      <div class="prog-arrow">→</div>
+      <div class="prog-step">
+        <div class="prog-label">Year 2</div>
+        <div class="prog-name">Modular Curator</div>
+      </div>
+      <div class="prog-arrow">→</div>
+      <div class="prog-step target">
+        <div class="prog-label">Target State</div>
+        <div class="prog-name">Orchestrator</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>
+      <strong>The governance imperative:</strong> Each transition in this progression requires a deliberate upgrade in AI governance — clearer guardrails, tighter feedback loops, and defined escalation protocols. Organizations that skip this infrastructure create liability, not leverage.
+    </p>
+  </div>
+</section>
+
+<!-- SELF-ASSESSMENT -->
+<div class="diagnostic" id="diagnostic">
+  <div class="section-label">Self-Assessment</div>
+  <h2 class="section-title">Where Is Your Organization Right Now?</h2>
+  <p class="section-body">Select every statement that accurately describes your organization's current AI posture. Your results will appear below.</p>
+
+  <div class="question-set" id="questionSet">
+
+    <div class="question-item" data-stage="1">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 1 Indicator</span>
+        We use AI tools (ChatGPT, Copilot, etc.) to speed up individual tasks — writing, summarizing, searching — but our core processes haven't changed.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="1">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 1 Indicator</span>
+        AI outputs require human review before any action is taken. We don't have defined guardrails — it's judgment-based case by case.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="2">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 2 Indicator</span>
+        We have at least one workflow where AI executes a defined process end-to-end, with humans only reviewing exceptions or escalations.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="2">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 2 Indicator</span>
+        Our AI implementations have documented guardrails — the system knows what it can and cannot do without human approval.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="3">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 3 Indicator</span>
+        AI in our organization can adapt its approach based on context — selecting different tools or sequences depending on the situation, not just following a fixed script.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="3">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 3 Indicator</span>
+        We have performance feedback loops in place — our AI systems are measurably improving based on outcomes data.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="4">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 4 Indicator</span>
+        Our marketing, sales, or operations functions run AI-coordinated campaigns or workflows where humans set strategy and AI determines and executes the path.
+      </div>
+    </div>
+
+    <div class="question-item" data-stage="4">
+      <div class="q-checkbox"><span class="q-checkmark">✓</span></div>
+      <div class="q-text">
+        <span class="q-stage">Stage 4 Indicator</span>
+        We have governance infrastructure — escalation protocols, audit trails, performance dashboards — that lets us confidently expand AI autonomy over time.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="diagnostic-result" id="diagnosticResult">
+    <div class="result-label">Your Current Stage</div>
+    <div class="result-text" id="resultText">—</div>
+    <div class="result-sub" id="resultSub">—</div>
+  </div>
+</div>
+
+<!-- CINTA APPROACH -->
+<section id="sec-approach">
+  <div class="section-label">The CINTA Approach</div>
+  <h2 class="section-title">A Structured Path Forward — Built on Proof, Not Theory</h2>
+  <p class="section-body">
+    CINTA & Co. has built and deployed an agentic AI marketing system that operates at Stage Three and Stage Four of the MIT framework — in production, for real clients. We don't consult on agentic AI from the outside. We run it. That operational experience is what we bring to every client engagement.
+  </p>
+  <p class="section-body">
+    Our advisory practice guides mid-market organizations through a deliberate, governed transition across each stage — with responsible AI infrastructure embedded at every step, not bolted on afterward.
+  </p>
+
+  <div class="approach-grid">
+
+    <div class="approach-card">
+      <div class="approach-number">01</div>
+      <div class="approach-title">Agentic AI Readiness Assessment</div>
+      <div class="approach-desc">
+        A structured diagnostic of your current AI posture — tools in use, workflow coverage, governance gaps, and technical infrastructure. We map you precisely onto the MIT framework and identify where your highest-leverage transitions are.
+      </div>
+    </div>
+
+    <div class="approach-card">
+      <div class="approach-number">02</div>
+      <div class="approach-title">Governed Transition Architecture</div>
+      <div class="approach-desc">
+        We design the guardrails, feedback loops, and human-in-the-loop protocols for each stage transition. AI without governance is liability. We build the infrastructure that lets you expand autonomy confidently and responsibly.
+      </div>
+    </div>
+
+    <div class="approach-card">
+      <div class="approach-number">03</div>
+      <div class="approach-title">Agentic AI Deployment & Operations</div>
+      <div class="approach-desc">
+        For organizations ready to move, we deploy CINTA's agentic marketing system — 16 specialized AI agents across content strategy, creation, distribution, and optimization — operating at Stages Three and Four from day one.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROOF BAND -->
+<div class="proof-band">
+  <div class="proof-inner">
+    <div class="proof-item">
+      <div class="proof-stat">16</div>
+      <div class="proof-label">Specialized AI Agents in Production</div>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <div class="proof-stat">70+</div>
+      <div class="proof-label">Content Pieces From a Single Input</div>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <div class="proof-stat">6</div>
+      <div class="proof-label">Channels Orchestrated Simultaneously</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="sec-cta">
+  <div class="cta-inner">
+    <div class="section-label">Get Started</div>
+    <h2 class="cta-heading">Ready to Know Exactly<br>Where You Stand — and<br><em>What to Do Next?</em></h2>
+    <p class="cta-sub">
+      Book a complimentary 45-minute Agentic AI Positioning Session with the CINTA team. We'll map your organization onto the MIT framework, identify your highest-leverage transitions, and outline a structured path to Stage Three and beyond.
+    </p>
+    <div class="cta-buttons">
+      <a href="https://cintaai.cintaconsulting.com/assessment/" class="btn-primary">Take the Assessment →</a>
+      <a href="https://cintaai.cintaconsulting.com" class="btn-secondary">Explore the Platform</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">CINTA & Co.</div>
+  </div>
+  <div class="footer-meta">Toronto, ON · cintaconsulting.com · © 2026</div>
+  <div class="footer-meta">AI Strategy & Agentic Marketing Systems</div>
+</footer>
+
+<script data-cfasync="false">
+(function() {
+  // ── Scroll: add shadow class to nav ──
+  var nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+
+  // ── Hamburger toggle ──
+  var btn    = document.getElementById('hamburgerBtn');
+  var drawer = document.getElementById('navDrawer');
+  btn.addEventListener('click', function() {
+    var isOpen = drawer.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+  });
+
+  // ── Close drawer when a link is clicked ──
+  drawer.querySelectorAll('.nav-link').forEach(function(link) {
+    link.addEventListener('click', function() {
+      drawer.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', false);
+    });
+  });
+
+  // ── Scroll spy: highlight active section ──
+  var sections = [
+    { id: 'sec-hero',     link: 'a[href="#sec-hero"]' },
+    { id: 'sec-research', link: 'a[href="#sec-research"]' },
+    { id: 'sec-framework',link: 'a[href="#sec-framework"]' },
+    { id: 'sec-reality',  link: 'a[href="#sec-reality"]' },
+    { id: 'diagnostic',   link: 'a[href="#diagnostic"]' },
+    { id: 'sec-approach', link: 'a[href="#sec-approach"]' },
+    { id: 'sec-cta',      link: 'a[href="#sec-cta"]' },
+  ];
+  function updateActiveLink() {
+    var scrollY = window.scrollY + 90;
+    var active = sections[0].id;
+    sections.forEach(function(s) {
+      var el = document.getElementById(s.id);
+      if (el && el.offsetTop <= scrollY) active = s.id;
+    });
+    sections.forEach(function(s) {
+      var linkEl = document.querySelector(s.link);
+      if (linkEl) linkEl.classList.toggle('active', s.id === active);
+    });
+  }
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  updateActiveLink();
+})();
+
+
+(function() {
+  // Attach click listeners to all question items via delegation
+  // (avoids inline onclick — immune to Cloudflare script injection)
+  var qs = document.getElementById('questionSet');
+  if (qs) {
+    qs.addEventListener('click', function(e) {
+      var item = e.target.closest('.question-item');
+      if (item) {
+        item.classList.toggle('selected');
+        updateResult();
+      }
+    });
+  }
+
+  function updateResult() {
+    var selected = document.querySelectorAll('.question-item.selected');
+    var resultEl  = document.getElementById('diagnosticResult');
+    var resultText = document.getElementById('resultText');
+    var resultSub  = document.getElementById('resultSub');
+
+    if (selected.length === 0) {
+      resultEl.classList.remove('visible');
+      return;
+    }
+
+    var stages = Array.from(selected).map(function(el) { return parseInt(el.dataset.stage); });
+    var s4 = stages.filter(function(s){ return s === 4; }).length;
+    var s3 = stages.filter(function(s){ return s === 3; }).length;
+    var s2 = stages.filter(function(s){ return s === 2; }).length;
+
+    var text, sub;
+
+    if (s4 >= 1) {
+      text = "Stage 4 — Orchestrator (Emerging)";
+      sub  = "You have elements of the most advanced model in place. The priority now is scaling governance, tightening feedback loops, and expanding the autonomous surface area of your AI operations systematically. CINTA can help you build the infrastructure that makes this sustainable.";
+    } else if (s3 >= 1) {
+      text = "Stage 3 — Modular Curator (Developing)";
+      sub  = "You're operating at one of the more advanced positions in the market. The gap to Stage 4 is primarily architectural — you need the orchestration layer, goal-setting protocols, and closed-loop analytics that turn adaptive AI into a genuinely autonomous system. This is precisely where CINTA’s platform plays.";
+    } else if (s2 >= 1) {
+      text = "Stage 2 — Customer Proxy (Transitioning)";
+      sub  = "You've moved beyond augmentation into execution — a meaningful distinction. The next transition requires building adaptability into your AI systems: moving from fixed-process automation to context-aware orchestration. CINTA’s advisory practice specialises in exactly this bridge.";
+    } else {
+      text = "Stage 1 — Existing+ (Current Position)";
+      sub  = "You're where most mid-market organisations are — and that's valuable context, not a criticism. The efficiency gains at Stage One are real. But the competitive advantage is at Stages Three and Four, and the organisations building toward that now will be difficult to displace in 18 months. Let’s talk about what a structured transition looks like for your context.";
+    }
+
+    resultText.textContent = text;
+    resultSub.textContent  = sub;
+    resultEl.classList.add('visible');
+  }
+})();
+</script>
+</body>
+</html>

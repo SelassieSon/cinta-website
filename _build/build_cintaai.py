@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os, shutil
 import common as c
 from common import icon, AIURL, WWW
 A = icon("arrow")
@@ -193,39 +194,11 @@ def segments():
 
 # ============================================================ BRIEF
 def brief():
-    hero = f'''<section class="darkhero" style="padding-bottom:48px"><div class="wrap">
-<div class="kicker" data-r><span class="kicker__bar"></span><span class="kicker__txt">Submit a brief</span></div>
-<h1 data-r data-rd="1">Give us one brief. <span class="accent">Get a campaign.</span></h1>
-<p class="darkhero__sub" data-r data-rd="2">Share a blog post or a short brief and your brand guidelines. We return 70+ channel-optimized pieces within 48 hours.</p></div></section>
-'''
-    briefform = c.embed_form(
-      "brief-form",
-      "Content brief",
-      "Takes about three minutes. We reply within one business day.",
-      (c.fld("contact_name","Full name","text","Jane Doe",True)+
-       c.fld("contact_email","Work email","email","jane@company.com",True)+
-       c.fld("org_name","Company","text","Company Inc.",True)+
-       c.fld("website","Website","url","https://company.com",False)+
-       c.sel("segment","Segment",["B2B SaaS","Agency","Founder-led","Other"],False)+
-       c.ta("message","Paste your content or a short brief","A blog post, a brief, or a link…",True,5)+
-       c.ta("brand_notes","Brand guidelines (link or notes)","Link to your brand guide, or key voice notes…",False,2)),
-      "Submit brief",
-      "Brief received",
-      "Thank you. Your brief is in, and we'll be in touch within one business day to confirm scope and get started.",
-      intent="lead", hidden={"service_interest": "CINTA AI content brief"},
-      fallback_subject="CINTA%20AI%20content%20brief")
-    form = f'''<section class="section"><div class="wrap"><div class="split">
-<div data-r><h2>What happens next</h2>
-<div class="steps" style="grid-template-columns:1fr;gap:24px;margin-top:24px">
-<div style="display:flex;gap:18px"><div class="step__n" style="margin:0">1</div><div><h3 style="font-size:16px">Submit your brief</h3><p style="color:var(--muted);font-size:14px">Your content and brand guidelines, in one form.</p></div></div>
-<div style="display:flex;gap:18px"><div class="step__n" style="margin:0">2</div><div><h3 style="font-size:16px">We produce</h3><p style="color:var(--muted);font-size:14px">16 agents generate across your chosen channels.</p></div></div>
-<div style="display:flex;gap:18px"><div class="step__n" style="margin:0">3</div><div><h3 style="font-size:16px">You review in 48 hours</h3><p style="color:var(--muted);font-size:14px">On-brand, governed, and ready to publish.</p></div></div>
-</div></div>
-<div data-r data-rd="1">{briefform}</div></div></div></section>
-'''
-    c.write("cintaai","brief.html","Submit a brief | CINTA AI",
-     "Submit a content brief to CINTA AI and get 70+ channel-optimized pieces within 48 hours.",
-     HDR(), hero+form)
+    # Restore the original Agentic AI Executive Brief (MIT CISR framework) verbatim.
+    # It is a self-contained page with its own chrome, so copy it as-is.
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "brief.html")
+    shutil.copyfile(src, os.path.join(c.ROOT, "cintaai", "brief.html"))
+    print("cintaai: brief.html (Agentic AI Executive Brief) restored")
 
 # ============================================================ ASSESSMENT
 def assessment():
