@@ -99,7 +99,7 @@ def header_dark(offers_href, cta_label, cta_href, how="#how-it-works"):
              f'<a href="{how}">How it works</a>'
              f'<a href="{cta_href}" class="btn btn-primary">{cta_label} {icon("arrow")}</a>')
     return (f'<header class="hdr hdr--dark"><div class="hdr__in">'
-     f'<a href="{RAI}" class="logo cobrand" aria-label="CoCr8 Labs and CINTA & Co.">'
+     f'<a href="{WWW}/" class="logo cobrand" aria-label="CINTA & Co. — home">'
      f'<span class="logo__name">CINTA &amp; Co.</span>'
      f'<span class="cobrand__x">×</span>'
      f'<span class="cobrand__cocr8">CoCr8&nbsp;Labs</span></a>'
@@ -115,7 +115,7 @@ def header_ai(active=""):
              f'<a href="{AIURL}/assessment.html">Assessment</a>'
              f'<a href="{AIURL}/#demo" class="btn btn-primary">Book a Demo {icon("arrow")}</a>')
     return (f'<header class="hdr"><div class="hdr__in">'
-     f'<a href="{AIURL}/" class="logo" aria-label="CINTA & Co. — Facilitating Success">'
+     f'<a href="{WWW}/" class="logo" aria-label="CINTA & Co. — Facilitating Success">'
      f'<span class="logo__name">CINTA &amp; Co.</span>'
      f'<span class="logo__tag">Facilitating Success</span></a>'
      f'<button class="nav-toggle" aria-label="Open menu" aria-expanded="false" '

@@ -51,7 +51,8 @@ h1,h2,h3{color:var(--text);font-weight:var(--fw-bold);line-height:var(--lh-tight
 .hdr--dark .logo__tag{color:rgba(255,255,255,.45)}
 .hdr--dark .nav a{color:rgba(255,255,255,.75)}
 .hdr--dark .nav a:hover{color:var(--white)}
-.cobrand{display:flex;align-items:center;gap:12px}
+.cobrand{display:flex;flex-direction:row;align-items:center;gap:10px}
+.cobrand .logo__name{font-size:19px}
 .cobrand__x{font-weight:300;color:rgba(255,255,255,.5);font-size:16px}
 .cobrand__cocr8{font-weight:600;color:#fff;font-size:18px;letter-spacing:-.01em}
 
