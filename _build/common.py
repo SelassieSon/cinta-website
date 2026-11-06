@@ -113,6 +113,7 @@ def header_ai(active=""):
              f'<a href="{AIURL}/#platform">Platform</a>'
              f'<a href="{AIURL}/#plans">Plans</a>'
              f'<a href="{AIURL}/assessment.html">Assessment</a>'
+             f'<a href="{AIURL}/brief.html">Brief</a>'
              f'<a href="{AIURL}/#demo" class="btn btn-primary">Book a Demo {icon("arrow")}</a>')
     return (f'<header class="hdr"><div class="hdr__in">'
      f'<a href="{WWW}/" class="logo" aria-label="CINTA & Co. — Facilitating Success">'

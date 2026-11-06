@@ -124,7 +124,16 @@ def home():
 <div class="card" data-r data-rd="2"><div class="card__icon icon-well">{icon("rocket")}</div><h3>Founders</h3><p class="card__txt">Founder-led companies that need to show up consistently.</p><a href="{AIURL}/founders.html" class="textlink">For founders {A}</a></div>
 </div></div></section>
 '''
-    body = hero+problem+how+platform+plans_section()+segments+demo_section()
+    resources = f'''<section class="section section--alt" id="start"><div class="wrap">
+<div class="section__head section__head--center" data-r><p class="eyebrow section-head">Start here</p>
+<h2>See where you stand</h2>
+<p class="section__intro">Two quick ways to find your footing before a conversation. Each takes a couple of minutes, and both come back with a tailored next step.</p></div>
+<div class="cards cards--2">
+<a class="card" href="{AIURL}/assessment.html" data-r><div class="card__icon icon-well">{icon("gauge")}</div><h3>Agentic Readiness Assessment</h3><p class="card__txt">A short diagnostic that maps your organization onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy.</p><span class="textlink">Take the assessment {A}</span></a>
+<a class="card" href="{AIURL}/brief.html" data-r data-rd="1"><div class="card__icon icon-well">{icon("clipboard")}</div><h3>Agentic AI Executive Brief</h3><p class="card__txt">The MIT CISR framework for the agentic era, with a stage self-check and what each transition actually requires. Written for leaders.</p><span class="textlink">Read the brief {A}</span></a>
+</div></div></section>
+'''
+    body = hero+problem+how+platform+plans_section()+segments+resources+demo_section()
     c.write("cintaai","index.html","CINTA AI | Marketing operations platform",
      "CINTA AI turns one brief into 70+ channel-optimized pieces in your brand voice, with governance built in. Book a live demo.",
      HDR("Home"), body)
@@ -202,41 +211,10 @@ def brief():
 
 # ============================================================ ASSESSMENT
 def assessment():
-    QS = [
-     ("How large is the gap between the content you need and what you produce?",
-      ["We keep up fine","A small gap","A large gap","We are drowning"]),
-     ("Is your brand voice and are your guidelines documented?",
-      ["Not written down","Loosely","Mostly documented","Fully documented and current"]),
-     ("How is your marketing team's time split?",
-      ["Mostly strategy","Balanced","Mostly producing","Almost all producing"]),
-     ("How many separate tools are in your content workflow?",
-      ["1 to 2","3 to 5","6 to 10","More than 10"]),
-     ("How far along is your AI adoption for marketing?",
-      ["Not started","Experimenting","Some workflows","Embedded across the team"]),
-     ("Do you have a content review and approval process?",
-      ["None","Ad hoc","A light process","A defined approval workflow"]),
-     ("Are your brand assets and past content organized and accessible?",
-      ["Scattered","Somewhat","Mostly organized","Centralized and tagged"]),
-     ("Does leadership back investing in AI for marketing?",
-      ["No appetite","Curious","Supportive","Mandated this year"]),
-    ]
-    TIERS = [
-     {"max":7,"t":"Early — set the foundation","x":"The need is real, but a few basics come first. Document your brand voice and consolidate your tools, and agentic AI will pay off far faster. A demo shows exactly where you would start.",
-      "steps":["Document your brand voice and guidelines in one place","Consolidate your scattered content tools","Book a demo to see agentic production run on your own content"]},
-     {"max":13,"t":"Ready to pilot","x":"You have the need and enough structure to start. A short pilot on your real content proves the 70x multiplication before you commit to anything.",
-      "steps":["Pick one flagship piece to run through the pipeline","Confirm your brand guidelines are current","Book a demo and watch one brief become a full campaign"]},
-     {"max":19,"t":"Ready to scale","x":"Strong fit. You have the demand, the governance, and the appetite. Move from a pilot to a standing agentic workflow across your channels.",
-      "steps":["Move your team from producing to reviewing and directing","Set an approval workflow so governance scales with volume","Book a demo to map a rollout across your channels"]},
-     {"max":24,"t":"Ready to operationalize","x":"You are ready to run marketing as an agentic operation, with governance built in. If you serve multiple brands, the multi-tenant setup changes your margins.",
-      "steps":["If you run multiple brands or clients, evaluate the multi-tenant setup","Integrate the pipeline with your CRM and publishing","Book a demo to plan your operating model and governance"]},
-    ]
-    c.assessment_page("cintaai","assessment","Agentic Readiness Assessment | CINTA AI",
-     "An 8-question check of how ready your marketing operation is to put agentic AI to work, with a personalized action plan. About two minutes.",
-     HDR(), "Agentic readiness assessment",
-     "Is your marketing ready for","agentic AI?",
-     "Eight questions, about two minutes. See how ready your marketing operation is to put agentic AI to work, and the fastest path to value for where you are.",
-     QS, TIERS, "Agentic Readiness Assessment",
-     DEMO, "Or book a live demo")
+    # Restore the original Agentic AI Readiness Assessment (multi-screen, radar) verbatim.
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "assessment.html")
+    shutil.copyfile(src, os.path.join(c.ROOT, "cintaai", "assessment.html"))
+    print("cintaai: assessment.html (Agentic AI Readiness Assessment) restored")
 
 if __name__ == "__main__":
     home(); segments(); brief(); assessment()
