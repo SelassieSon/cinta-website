@@ -98,10 +98,18 @@ def home():
 <div class="card" data-r data-rd="2"><p class="card__eyebrow">Making strategy work</p><h3>The strategic plan that actually gets implemented</h3><p class="card__txt">The plan is the easy part. Here is the framework that makes execution stick.</p></div>
 </div></div></section>
 '''
+    assess = f'''<section class="section"><div class="wrap">
+<div class="assessband" data-r>
+<div class="assessband__txt"><p class="eyebrow section-head">Free diagnostic</p>
+<h2>Where does your organization stand in the agentic era?</h2>
+<p class="section__intro">A short self-assessment built on the MIT CISR framework. It maps you onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy. About two minutes, with a tailored next step.</p></div>
+<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary btn-lg">Take the Agentic Readiness Assessment {A}</a></div>
+</div></div></section>
+'''
     cta = c.cta_red("Ready to navigate what is next?",
         "Book an Ecosystem Mapping Session and leave with a clear, honest read on where to focus first.",
         "Book your Ecosystem Mapping Session", f"{WWW}/contact.html")
-    body = hero+strip+position+domains+approach+sectors+insights+cta
+    body = hero+strip+position+domains+approach+assess+sectors+insights+cta
     c.write("www","index.html","CINTA & Co. | Facilitating Success",
         "CINTA & Co. helps mid-market leaders navigate compounding disruption with neuroscience-informed leadership and practical business systems.",
         c.header_www("Home"), body)
@@ -293,11 +301,17 @@ def services():
     for did,num,title,intro,unlike,alt,svcs in DOM:
         altcls = " section--alt" if alt else ""
         cards = "".join(svc(t,x,f) for t,x,f in svcs)
+        extra = ""
+        if did == "digital":
+            extra = (f'<div class="assessband assessband--inline" data-r style="margin-top:36px">'
+             f'<div class="assessband__txt"><h3>Not sure where to start?</h3>'
+             f'<p>Take the Agentic Readiness Assessment. It maps your organization onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy, with a tailored next step in about two minutes.</p></div>'
+             f'<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary">Take the assessment {A}</a></div></div>')
         out += f'''<section class="section{altcls}" id="{did}"><div class="wrap">
 <div class="section__head" data-r><p class="eyebrow section-head">Domain {num}</p>
 <h2>{title}</h2><p class="section__intro">{intro}</p>
 <p style="font-size:15px;color:var(--muted);font-style:italic;margin-top:14px;max-width:700px">{unlike}</p></div>
-<div class="cards cards--2">{cards}</div></div></section>
+<div class="cards cards--2">{cards}</div>{extra}</div></section>
 '''
     process = f'''<section class="section section--dark"><div class="wrap">
 <div class="section__head section__head--center" data-r><p class="eyebrow section-head" style="color:var(--red)">How we work</p>

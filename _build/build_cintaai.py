@@ -129,7 +129,7 @@ def home():
 <h2>See where you stand</h2>
 <p class="section__intro">Two quick ways to find your footing before a conversation. Each takes a couple of minutes, and both come back with a tailored next step.</p></div>
 <div class="cards cards--2">
-<a class="card" href="{AIURL}/assessment.html" data-r><div class="card__icon icon-well">{icon("gauge")}</div><h3>Agentic Readiness Assessment</h3><p class="card__txt">A short diagnostic that maps your organization onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy.</p><span class="textlink">Take the assessment {A}</span></a>
+<a class="card" href="{AIURL}/marketing-assessment.html" data-r><div class="card__icon icon-well">{icon("gauge")}</div><h3>Marketing Operations Assessment</h3><p class="card__txt">Eight questions on your content operation. See where it stands, which plan fits, and get a personalized action plan in your inbox.</p><span class="textlink">Take the assessment {A}</span></a>
 <a class="card" href="{AIURL}/brief.html" data-r data-rd="1"><div class="card__icon icon-well">{icon("clipboard")}</div><h3>Agentic AI Executive Brief</h3><p class="card__txt">The MIT CISR framework for the agentic era, with a stage self-check and what each transition actually requires. Written for leaders.</p><span class="textlink">Read the brief {A}</span></a>
 </div></div></section>
 '''
@@ -216,6 +216,36 @@ def assessment():
     shutil.copyfile(src, os.path.join(c.ROOT, "cintaai", "assessment.html"))
     print("cintaai: assessment.html (Agentic AI Readiness Assessment) restored")
 
+# ============================================================ MARKETING OPS ASSESSMENT
+def marketing_assessment():
+    QS = [
+     ("How much content does your team publish per week?",["Less than 3 pieces","3 to 10 pieces","11 to 25 pieces","More than 25 pieces"]),
+     ("How many tools are in your content workflow?",["1 to 2","3 to 5","6 to 10","More than 10"]),
+     ("How often do you repurpose one piece across channels?",["Rarely","Sometimes","Often","Every time, manually"]),
+     ("How long from idea to published across channels?",["Weeks","About a week","A few days","Same day"]),
+     ("How consistent is your brand voice across channels?",["Inconsistent","Somewhat","Mostly","Tightly controlled"]),
+     ("What share of your team's time is production vs strategy?",["Mostly production","More production","Balanced","Mostly strategy"]),
+     ("How far along is your AI adoption for content?",["Not started","Experimenting","Some workflows","Embedded"]),
+     ("How big is the gap between content demand and output?",["Enormous","Large","Manageable","None"]),
+    ]
+    TIERS = [
+     {"max":6,"t":"Starter is your fit","x":"Your content engine is early-stage. The fastest win is consistency: one brief multiplied across channels, shipped on a schedule you can keep without a hire.",
+      "steps":["Pick one flagship piece a week and let CINTA AI multiply it across your core channels","Write one reusable brief template so every piece starts from the same brand voice","Book a demo to see the multiplication run on your own content"]},
+     {"max":13,"t":"Growth is your fit","x":"You have real demand and a lean team feeling the strain. Growth gives you all 16 agents and 70x multiplication, so your strategists get back to strategy.",
+      "steps":["Consolidate your scattered point tools into one multiplication pipeline","Move your team from producing every piece to reviewing and directing","Brief once and ship a full campaign across six channels in 48 hours"]},
+     {"max":19,"t":"Agency or Growth, depending on your model","x":"You are producing at volume. If you serve multiple brands, the multi-tenant Agency plan changes your margins. If not, Growth scales you further.",
+      "steps":["If you run multiple brands, evaluate the multi-tenant Agency setup for margin","Standardize brand guardrails so quality holds as volume climbs","Track production hours reclaimed as your first ROI measure"]},
+     {"max":24,"t":"Enterprise is worth a conversation","x":"You run a mature operation. Enterprise adds custom agents, CRM integration, and policy-as-code audit trails to govern it all at scale.",
+      "steps":["Add policy-as-code approval routing and audit trails for governance","Integrate CRM (Salesforce or HubSpot) so content ties to pipeline","Configure custom agents for your highest-volume content types"]},
+    ]
+    c.assessment_page("cintaai","marketing-assessment","Marketing Operations Assessment | CINTA AI",
+     "An 8-question assessment of your content operation, with a plan recommendation and a personalized action plan. About two minutes.",
+     HDR(), "Marketing operations assessment",
+     "How ready is your","content engine?",
+     "Eight questions, about two minutes. See where your content operation stands, which plan fits, and get a personalized action plan in your inbox.",
+     QS, TIERS, "Marketing Operations Assessment",
+     DEMO, "Or book a live demo")
+
 if __name__ == "__main__":
-    home(); segments(); brief(); assessment()
-    print("cintaai: platform, saas, agencies, founders, brief, assessment written")
+    home(); segments(); brief(); assessment(); marketing_assessment()
+    print("cintaai: platform, saas, agencies, founders, brief, assessment, marketing-assessment written")
