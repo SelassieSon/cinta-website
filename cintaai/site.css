@@ -32,7 +32,7 @@
 
 /* ---- DARK HERO (RAI / product) ---- */
 .darkhero{background:var(--black);color:#fff;padding:96px 0 80px;text-align:center}
-.darkhero .kicker{justify-content:center}
+.darkhero .kicker{flex-direction:column;justify-content:center;gap:14px}
 .darkhero .kicker__txt{color:var(--red)}
 .darkhero h1{color:#fff;font-size:var(--fs-display);line-height:1.1;max-width:820px;margin:0 auto 22px}
 .darkhero h1 .accent{color:var(--red)}
