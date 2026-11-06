@@ -34,6 +34,16 @@ var CONFIG = {
   REPLY_TO:           'info@cintaconsulting.com',
   BOOKING_SECRET:     'cinta-2026-change-me-to-anything-random',
 
+  // Auto company briefing on inbound leads (uses Claude API + web search).
+  // The API key is NOT stored here — set Script property ANTHROPIC_API_KEY
+  // under Project Settings → Script properties. If no key is set, leads still
+  // send normally, just without the briefing.
+  COMPANY_BRIEFING:   true,
+  BRIEFING_MODEL:     'claude-sonnet-5-5',   // any current API model string
+  BRIEFING_TOOL:      'web_search_20250305', // web search server-tool version
+  BRIEFING_MAX_USES:  4,
+  BRIEFING_CACHE_HRS: 6,                      // reuse a briefing per domain/org
+
   CLIENT_SHEET_ID:        '',
   CLIENT_SHEET_TAB:       'Clients',
   CLIENTS_ROOT_FOLDER_ID: '',
@@ -131,17 +141,32 @@ function handleLead_(d) {
   }
   if (CONFIG.NOTIFY_EMAIL) {
     var tag = isAssessment ? '[ASSESSMENT LEAD]' : '[RAI LEAD]';
+    var brief = enrichCompany_(d);
+    var briefBlock = '';
+    if (brief) {
+      briefBlock = '\n────────────  COMPANY BRIEFING (auto-researched)  ────────────\n' + brief;
+    } else if (CONFIG.COMPANY_BRIEFING) {
+      briefBlock = '\n────────────  COMPANY BRIEFING  ────────────\n' +
+        '(Not available: no business domain on the email, or research was skipped. ' +
+        'See setup if this is unexpected.)';
+    }
     GmailApp.sendEmail(CONFIG.NOTIFY_EMAIL,
       tag + ' ' + (d.org_name || d.contact_email) + (d.service_interest ? ' — ' + d.service_interest : ''),
       ['New lead from ' + (d.service_interest || 'Responsible AI'), '',
+       '──────────────  PROSPECT SNAPSHOT  ──────────────',
+       'Organization: ' + (d.org_name || '(not given)'),
+       'Contact: ' + (d.contact_name || '(not given)') + ' <' + d.contact_email + '>',
+       (companyDomain_(d.contact_email) ? 'Company domain: ' + companyDomain_(d.contact_email) : ''),
+       'Website: ' + (d.website || '(not given)'),
+       'Sector: ' + (d.sector || '(not given)'), 'Role: ' + (d.role || '(not given)'),
+       (d.segment ? 'Segment: ' + d.segment : ''), '',
+       '──────────────  ASSESSMENT  ──────────────',
        'Service: ' + (d.service_interest || '(general)'),
        (d.assessment_result ? 'Result: ' + d.assessment_result + (d.assessment_score ? ' (score ' + d.assessment_score + ')' : '') : ''),
-       'Organization: ' + d.org_name, 'Website: ' + d.website,
-       'Contact: ' + d.contact_name + ' <' + d.contact_email + '>',
-       'Sector: ' + d.sector, 'Role: ' + d.role,
-       (d.segment ? 'Segment: ' + d.segment : ''), '',
-       (d.action_plan ? 'Action plan sent:\n' + d.action_plan : 'Message:\n' + (d.message || '(none)')),
-       (d.brand_notes ? '\nBrand guidelines: ' + d.brand_notes : '')]
+       '',
+       (d.action_plan ? 'Action plan sent to prospect:\n' + d.action_plan : 'Message:\n' + (d.message || '(none)')),
+       (d.brand_notes ? '\nBrand guidelines: ' + d.brand_notes : ''),
+       briefBlock]
        .filter(function (x) { return x !== ''; }).join('\n'),
       { name: 'CINTA Booking Bot' });
   }
@@ -192,6 +217,75 @@ function sendActionPlan_(d) {
     '<p style="margin-top:22px">CINTA &amp; Co. — Facilitating Success<br>Toronto, Ontario</p></div>';
   GmailApp.sendEmail(d.contact_email, 'Your ' + svc + ' results and action plan — CINTA & Co.',
     plain, { htmlBody: body, name: 'CINTA & Co.', replyTo: CONFIG.REPLY_TO });
+}
+
+// ─────────────────────────────────────────────── Company briefing (web research)
+
+// Return the business domain of an email, or '' for free webmail / missing.
+function companyDomain_(email) {
+  var dom = (String(email || '').split('@')[1] || '').toLowerCase().trim();
+  if (!dom) return '';
+  var free = ['gmail.com','googlemail.com','outlook.com','hotmail.com','live.com',
+    'yahoo.com','yahoo.ca','ymail.com','icloud.com','me.com','mac.com','aol.com',
+    'proton.me','protonmail.com','gmx.com','msn.com','pm.me','mail.com','hey.com'];
+  return free.indexOf(dom) === -1 ? dom : '';
+}
+
+// Ask Claude (with web search) for a short internal briefing on the lead's company.
+// Returns plain text, or '' if disabled, no key, nothing to research, or on error.
+function enrichCompany_(d) {
+  if (!CONFIG.COMPANY_BRIEFING) return '';
+  var key = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  if (!key) return '';
+  var org = String(d.org_name || '').trim();
+  var domain = companyDomain_(d.contact_email);
+  if (!org && !domain) return '';   // nothing identifiable (e.g. gmail with no org)
+
+  var cache = CacheService.getScriptCache();
+  var ck = 'brief:' + (domain || org).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 200);
+  var hit = cache.get(ck);
+  if (hit) return hit;
+
+  var who = org && domain ? ('"' + org + '" (email domain ' + domain + ')')
+          : org ? ('"' + org + '"') : ('the organization at the domain ' + domain);
+  var prompt =
+    'You are briefing a boutique consulting firm on an inbound lead. Research ' + who +
+    ' using web search and write a concise internal briefing, under 180 words, plain text, no markdown headings or bullets characters. ' +
+    'Cover only what you can actually verify: what the organization is and does; its sector; approximate size (employees) and HQ/location; ' +
+    'anything notable or recent (leadership, funding, initiatives) that is relevant to a conversation; and one closing line on where an AI, ' +
+    'strategy, and transformation consultancy could plausibly help them. ' +
+    'If you cannot confidently identify the organization, say that in one line instead of guessing. Never invent facts, names, or numbers.';
+
+  var payload = {
+    model: CONFIG.BRIEFING_MODEL,
+    max_tokens: 800,
+    tools: [{ type: CONFIG.BRIEFING_TOOL, name: 'web_search', max_uses: CONFIG.BRIEFING_MAX_USES }],
+    messages: [{ role: 'user', content: prompt }]
+  };
+
+  try {
+    var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+    var code = res.getResponseCode();
+    if (code !== 200) {
+      notifyFailure_('Company briefing API ' + code + ': ' + res.getContentText().slice(0, 400), null);
+      return '';
+    }
+    var data = JSON.parse(res.getContentText());
+    var text = (data.content || [])
+      .filter(function (b) { return b.type === 'text'; })
+      .map(function (b) { return b.text; }).join('\n').trim();
+    if (text) cache.put(ck, text, Math.round(CONFIG.BRIEFING_CACHE_HRS * 3600));
+    return text;
+  } catch (err) {
+    notifyFailure_('Company briefing fetch failed: ' + err, null);
+    return '';
+  }
 }
 
 // ─────────────────────────────────────────────────────────── Click-to-book
