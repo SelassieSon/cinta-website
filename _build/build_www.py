@@ -103,7 +103,8 @@ def home():
 <div class="assessband__txt"><p class="eyebrow section-head">Free diagnostic</p>
 <h2>Where does your organization stand in the agentic era?</h2>
 <p class="section__intro">A short self-assessment built on the MIT CISR framework. It maps you onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy. About two minutes, with a tailored next step.</p></div>
-<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary btn-lg">Take the Agentic Readiness Assessment {A}</a></div>
+<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary btn-lg">Take the Agentic Readiness Assessment {A}</a>
+<a href="{AIURL}/brief.html" class="textlink" style="margin-top:14px">Prefer to read first? The Agentic AI Executive Brief {A}</a></div>
 </div></div></section>
 '''
     cta = c.cta_red("Ready to navigate what is next?",
@@ -306,7 +307,13 @@ def services():
             extra = (f'<div class="assessband assessband--inline" data-r style="margin-top:36px">'
              f'<div class="assessband__txt"><h3>Not sure where to start?</h3>'
              f'<p>Take the Agentic Readiness Assessment. It maps your organization onto the agentic AI stages and scores you across tools, workflow, governance, infrastructure, and strategy, with a tailored next step in about two minutes.</p></div>'
-             f'<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary">Take the assessment {A}</a></div></div>')
+             f'<div class="assessband__act"><a href="{AIURL}/assessment.html" class="btn btn-primary">Take the assessment {A}</a>'
+             f'<a href="{AIURL}/brief.html" class="textlink" style="margin-top:14px">Read the Agentic AI Executive Brief {A}</a></div></div>')
+        if did == "innovation":
+            extra = (f'<div class="assessband assessband--inline" data-r style="margin-top:36px">'
+             f'<div class="assessband__txt"><h3>Rethinking your model for the agentic era?</h3>'
+             f'<p>The Agentic AI Executive Brief lays out the MIT CISR framework for the agentic era, with a stage self-check and what each transition actually requires of your model and your organization. Written for leaders.</p></div>'
+             f'<div class="assessband__act"><a href="{AIURL}/brief.html" class="btn btn-primary">Read the brief {A}</a></div></div>')
         out += f'''<section class="section{altcls}" id="{did}"><div class="wrap">
 <div class="section__head" data-r><p class="eyebrow section-head">Domain {num}</p>
 <h2>{title}</h2><p class="section__intro">{intro}</p>

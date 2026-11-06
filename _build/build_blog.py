@@ -151,7 +151,15 @@ def index_page(posts):
             f'<h1 data-r data-rd="1">Ideas for leaders navigating <span class="accent">change</span></h1>'
             f'<p class="pagehero__sub" data-r data-rd="2">Strategy, transformation, and responsible AI, from the CINTA & Co. team. '
             f'{len(posts)} articles and counting.</p></div></section>')
-    body = (hero + INDEX_CSS + '<section class="section"><div class="wrap">'
+    brief_band = ('<section class="section" style="padding-bottom:0"><div class="wrap">'
+            '<div class="assessband" data-r>'
+            '<div class="assessband__txt"><p class="eyebrow section-head">Featured reading</p>'
+            '<h2>The Agentic AI Executive Brief</h2>'
+            '<p class="section__intro">The MIT CISR framework for the agentic era, with a stage self-check '
+            'and what each transition actually requires. Written for leaders deciding where to move next.</p></div>'
+            f'<div class="assessband__act"><a href="{AIURL}/brief.html" class="btn btn-primary btn-lg">Read the brief {icon("arrow")}</a></div>'
+            '</div></div></section>')
+    body = (hero + INDEX_CSS + brief_band + '<section class="section"><div class="wrap">'
             f'<div class="cat-filter">{chips}</div>'
             f'<div class="blog-grid" id="grid">{cards}</div></div></section>'
             '<script>(function(){var chips=document.querySelectorAll(".cat-chip"),'

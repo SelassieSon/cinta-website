@@ -161,7 +161,7 @@
 .assessband__txt h2{font-size:clamp(22px,2.6vw,30px);line-height:1.15;margin:6px 0 12px}
 .assessband__txt h3{font-size:21px;line-height:1.2;margin:0 0 10px}
 .assessband__txt p{color:var(--text-body);font-size:15px;line-height:1.7;max-width:640px;margin:0}
-.assessband__act{flex-shrink:0}
+.assessband__act{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;gap:0}
 .assessband--inline{background:var(--surface-alt,#faf7f3)}
 
 /* ---- RESPONSIVE ---- */
