@@ -125,12 +125,11 @@ def home():
 </div></div></section>
 '''
     resources = f'''<section class="section section--alt" id="start"><div class="wrap">
-<div class="section__head section__head--center" data-r><p class="eyebrow section-head">Start here</p>
-<h2>See where you stand</h2>
-<p class="section__intro">Two quick ways to find your footing before a conversation. Each takes a couple of minutes, and both come back with a tailored next step.</p></div>
-<div class="cards cards--2">
-<a class="card" href="{AIURL}/marketing-assessment.html" data-r><div class="card__icon icon-well">{icon("gauge")}</div><h3>Marketing Operations Assessment</h3><p class="card__txt">Eight questions on your content operation. See where it stands, which plan fits, and get a personalized action plan in your inbox.</p><span class="textlink">Take the assessment {A}</span></a>
-<a class="card" href="{AIURL}/brief.html" data-r data-rd="1"><div class="card__icon icon-well">{icon("clipboard")}</div><h3>Agentic AI Executive Brief</h3><p class="card__txt">The MIT CISR framework for the agentic era, with a stage self-check and what each transition actually requires. Written for leaders.</p><span class="textlink">Read the brief {A}</span></a>
+<div class="assessband" data-r>
+<div class="assessband__txt"><p class="eyebrow section-head">Start here</p>
+<h2>See where your content operation stands</h2>
+<p class="section__intro">Eight questions, about two minutes. See where your content engine stands, which plan fits, and get a personalized action plan in your inbox.</p></div>
+<div class="assessband__act"><a href="{AIURL}/marketing-assessment.html" class="btn btn-primary btn-lg">Take the Marketing Operations Assessment {A}</a></div>
 </div></div></section>
 '''
     body = hero+problem+how+platform+plans_section()+segments+resources+demo_section()
