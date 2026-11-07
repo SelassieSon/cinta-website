@@ -458,33 +458,84 @@ def contact():
         c.header_www(), hero+body)
 
 # ============================================================ PRIVACY + TERMS
-def legal(slug, title, intro, sections):
+def legal(slug, title, intro, sections, desc=None):
     hero = f'''<section class="pagehero"><div class="wrap pagehero__in">
 <div class="kicker"><span class="kicker__bar"></span><span class="kicker__txt">{title}</span></div>
 <h1>{title}</h1><p class="pagehero__sub">{intro}</p></div></section>
 '''
-    blocks = "".join(f'<h2>{h}</h2>{"".join(f"<p>{p}</p>" for p in ps)}' for h,ps in sections)
+    def _block(h, ps):
+        # A paragraph that already starts with a tag (e.g. a <ul>) is emitted
+        # as-is; plain text is wrapped in <p>.
+        inner = "".join(p if p.lstrip().startswith("<") else f"<p>{p}</p>" for p in ps)
+        return f"<h2>{h}</h2>{inner}"
+    blocks = "".join(_block(h, ps) for h, ps in sections)
     body = f'<section class="section"><div class="wrap"><div class="prose">{blocks}</div></div></section>'
     c.write("www",f"{slug}.html",f"{title} | CINTA & Co.",
-        f"{title} for CINTA & Co.", c.header_www(), hero+body)
+        desc or f"{title} for CINTA & Co.", c.header_www(), hero+body)
 
 def privacy():
     legal("privacy","Privacy policy",
-      "How CINTA & Co. collects, uses, and protects your information. Last updated February 2026.",
-      [("Who we are",["CINTA & Co. is a consulting firm based in Toronto, Ontario, Canada. You can reach us at info@cintaconsulting.com with any question about this policy or your information."]),
-       ("What we collect",["We collect the information you give us directly, such as your name, email, organization, and the details you share when you book a session or contact us. We also collect basic analytics about how our site is used, so we can improve it."]),
-       ("How we use it",["We use your information to respond to you, deliver the services you request, and improve our work. We do not sell your personal information. We share it only with the specialists we engage to serve you, and only as needed to do that work."]),
-       ("Your choices",["You can ask us what information we hold about you, ask us to correct it, or ask us to delete it. Email info@cintaconsulting.com and we will respond promptly."]),
-       ("Security and retention",["We take reasonable measures to protect your information and keep it only as long as we need it for the purposes above or as the law requires."])])
+      "How CINTA &amp; Co. collects, uses, and protects your personal information. Last updated November 2026.",
+      [
+       ("Who this covers",[
+         "CINTA &amp; Co. is a consulting firm based in Toronto, Ontario, Canada. This policy explains how we handle personal information across our public websites, including cintaconsulting.com, our Insights blog, the CINTA AI marketing site, and our Responsible AI pages.",
+         "If you are a client using the CINTA AI marketing platform itself, the data inside that platform is governed by the separate agreement we sign with you, not by this website policy.",
+         "Questions about this policy, or about the information we hold on you, can go to <a href='mailto:info@cintaconsulting.com'>info@cintaconsulting.com</a>."]),
+       ("What we collect",[
+         "We collect two kinds of information.",
+         "The first is what you give us directly. When you book a session, request an assessment result, or contact us, we collect your name, your work email, your organization, and anything else you choose to type into a form, including your answers to an assessment and the result it produces.",
+         "The second is basic technical information your browser sends on its own, such as your IP address, device and browser type, and the pages you view. This sits in standard server logs and helps us keep the site secure and working.",
+         "Our pages also load fonts from Google Fonts, which means Google receives the IP address of the request when a page loads."]),
+       ("Cookies and analytics",[
+         "We use Google Analytics to understand how people find and use our site, and Google Ads conversion tracking to see which of our campaigns lead to an inquiry. These Google tools set cookies and collect usage information, such as the pages you view, your approximate location, and the device and browser you use. We set our form tracking to record only the type of request, never the personal details you type into a form.",
+         "You can turn this off. Most browsers let you block or clear cookies, and Google offers an opt-out add-on that applies across every site, at <a href='https://tools.google.com/dlpage/gaoptout' target='_blank' rel='noopener'>tools.google.com/dlpage/gaoptout</a>. Essential cookies that make the site work are not affected."]),
+       ("How we use it",[
+         "We use your information to:",
+         "<ul><li>reply to you and answer what you asked;</li><li>send the assessment result or action plan you requested;</li><li>schedule, confirm, and follow up on sessions you book;</li><li>tell you about services and insights where you have agreed to hear from us;</li><li>keep the site secure and make it better over time.</li></ul>",
+         "When a business inquiry comes in, we may prepare a short background summary of your organization from publicly available web information, so the person who follows up is prepared. We do not sell your personal information to anyone, for any purpose."]),
+       ("Email and your consent",[
+         "We send marketing email only where you have given consent or where Canadian anti-spam law otherwise allows it, for example when you asked us for something or we already have a business relationship with you. Every such email identifies us and carries an unsubscribe link. Use it any time and we stop."]),
+       ("Service providers we rely on",[
+         "We do not sell personal information. To run the site and our follow-up, we use a small set of trusted providers that process information on our behalf:",
+         "<ul><li>Google Workspace, which handles our web form submissions, scheduling, email, and related storage;</li><li>Google Analytics and Google Ads, which measure how the site is used and how our campaigns perform;</li><li>Anthropic (the Claude API), which generates the short organization background summary described above.</li></ul>",
+         "We also share your information with the specialists we engage to serve you, and only to the extent they need it to do that work."]),
+       ("Where your information is processed",[
+         "Some of these providers operate in the United States, so your information may be stored or processed outside Canada. When that happens, it can be subject to the laws of the country where it is held, including lawful access by courts and authorities there."]),
+       ("Your rights",[
+         "Under Canadian privacy law you can:",
+         "<ul><li>ask what personal information we hold about you;</li><li>ask us to correct it;</li><li>withdraw your consent to our use of it;</li><li>ask us to delete it.</li></ul>",
+         "Email <a href='mailto:info@cintaconsulting.com'>info@cintaconsulting.com</a> and we will respond within a reasonable time, and no later than 30 days. If you are not satisfied with how we handle a concern, you can contact the <a href='https://www.priv.gc.ca/' target='_blank' rel='noopener'>Office of the Privacy Commissioner of Canada</a>."]),
+       ("Security and retention",[
+         "We take reasonable measures to protect your information, and we keep it only as long as we need it for the purposes in this policy or as the law requires. No system is perfectly secure, so we cannot promise absolute security, but we work to reduce the risk."]),
+       ("Children",[
+         "Our site and services are meant for organizations and the professionals who run them. They are not directed to children, and we do not knowingly collect personal information from them."]),
+       ("Changes to this policy",[
+         "We may update this policy as our practices or the law change. The date at the top shows when it last changed, and we will flag anything significant."]),
+      ])
 
 def terms():
     legal("terms","Terms of use",
-      "The terms that govern your use of this website. Last updated February 2026.",
-      [("Using this site",["This website is provided for general information about CINTA & Co. and our services. By using it, you agree to these terms. If you do not agree, please do not use the site."]),
-       ("Our content",["The content on this site, including text, design, and brand marks, belongs to CINTA & Co. unless stated otherwise. You may read and share it, but you may not reproduce it as your own or use our brand marks without written permission."]),
-       ("No professional advice",["Information on this site is general and is not a substitute for tailored professional advice. For guidance specific to your organization, book a session and speak with us directly."]),
-       ("Links to other sites",["Our site links to other properties and partners, including CINTA AI, our Responsible AI practice with CoCr8 Labs, and our Insights blog. We are not responsible for the content of third-party sites."]),
-       ("Contact",["Questions about these terms can go to info@cintaconsulting.com."])])
+      "The terms that govern your use of the CINTA &amp; Co. website. Last updated November 2026.",
+      [
+       ("Using this site",[
+         "This website gives general information about CINTA &amp; Co. and our services. By using it, you agree to these terms. If you do not agree, please do not use the site."]),
+       ("Our content and brand",[
+         "The content here, including text, design, and the CINTA &amp; Co. brand marks, belongs to us unless we say otherwise. You are welcome to read and share it. You may not reproduce it as your own or use our brand marks without written permission."]),
+       ("Assessments and tools",[
+         "Our site offers assessments and tools, and some of them produce AI-generated results. These exist to help you think, not to guarantee an outcome. A result is general information based on the answers you give. It is not a professional opinion tailored to your organization, and you should not treat it as one."]),
+       ("No professional advice",[
+         "Nothing on this site is a substitute for advice suited to your own situation. For guidance specific to your organization, book a session and speak with us directly."]),
+       ("Booking and contact",[
+         "When you book a session or send us a form, you agree that we may contact you to arrange it and to follow up. How we handle the information you share is set out in our <a href='/privacy.html'>privacy policy</a>."]),
+       ("Other sites and the CINTA AI platform",[
+         "Our site links to other properties and partners, including the CINTA AI marketing site, our Responsible AI practice with CoCr8 Labs, and our Insights blog. We are not responsible for the content of sites we do not control. Use of the CINTA AI marketing platform itself is governed by the separate agreement we sign with clients, not by these terms."]),
+       ("The site is provided as is",[
+         "We work to keep the site accurate and available, but we provide it as is, without warranties of any kind. To the extent the law allows, CINTA &amp; Co. is not liable for indirect or consequential loss arising from your use of the site or from anything you rely on here."]),
+       ("Governing law",[
+         "These terms are governed by the laws of the Province of Ontario and the laws of Canada that apply there. Any dispute about them belongs to the courts of Ontario."]),
+       ("Changes and contact",[
+         "We may update these terms from time to time, and the date at the top shows when they last changed. Questions can go to <a href='mailto:info@cintaconsulting.com'>info@cintaconsulting.com</a>."]),
+      ])
 
 if __name__ == "__main__":
     home(); about(); sectors(); services(); contact(); privacy(); terms()
