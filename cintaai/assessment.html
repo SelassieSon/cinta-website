@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-32YHFBFH3D"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-32YHFBFH3D");</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agentic AI Readiness Assessment | CINTA & Co.</title>
@@ -1712,6 +1714,7 @@ function showResults() {
     '. The fastest next step is a 45-minute Agentic AI Positioning Session to map your highest-leverage transition and the governance it needs.';
   payload.cta_url = 'https://cintaai.cintaconsulting.com/#demo';
   payload.cta_label = 'Book a positioning session';
+  if (window.gtag) { gtag('event', 'generate_lead', {form_name: 'agentic-ai-assessment', lead_intent: 'lead', service: 'agentic-ai-readiness', assessment_stage: stageData.name, page_host: location.hostname}); }
   fetch('https://script.google.com/macros/s/AKfycbyg4NZqVPgFFPaC4Nep-5UypZpW2YcH3nv0BmdgXqhAju8LmOgbm57YxAWS49WLAKOI/exec', {
     method: 'POST',
     mode: 'no-cors',
