@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-32YHFBFH3D"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-32YHFBFH3D");</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact | CINTA & Co.</title>
@@ -94,6 +96,8 @@
     // Fire-and-forget to the Apps Script web app, which books the calendar event
     // and emails the confirmation. no-cors keeps the default text/plain body that
     // Apps Script reads as e.postData.contents (no preflight, no CORS setup needed).
+    // GA4 key event + Google Ads conversion. Carries the service, never personal fields.
+    if(window.gtag){gtag("event","generate_lead",{form_name:"contact-booking",lead_intent:"booking",service:(new URLSearchParams(location.search).get("service")||"ecosystem-mapping"),page_host:location.hostname});}
     fetch(WEBHOOK,{method:"POST",mode:"no-cors",body:JSON.stringify(d)})
       .catch(function(){})
       .finally(function(){

@@ -64,8 +64,23 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
  '<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,'
  'wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">')
 
+# Google Analytics 4: one property ("CINTA & Co. (all sites)") covers every
+# subdomain. gtag sets its cookie on cintaconsulting.com, so a visitor moving
+# from www to insights to cintaai stays one user and one session.
+GA_ID = "G-32YHFBFH3D"
+GTAG = (f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>\n'
+ '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}'
+ f'gtag("js",new Date());gtag("config","{GA_ID}");</script>\n')
+
+# Fired on every successful lead form (booking, demo, assessment). This is the
+# key event GA4 counts and the conversion Google Ads imports. Never send form
+# field values here: GA must not receive names or emails.
+def lead_event_js(form_name, intent_js):
+    return ('if(window.gtag){gtag("event","generate_lead",{form_name:' + repr(form_name)
+            + ',lead_intent:' + intent_js + ',page_host:location.hostname});}')
+
 def head(title, desc, css="site.css"):
-    return (f'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n'
+    return (f'<!DOCTYPE html>\n<html lang="en">\n<head>\n{GTAG}<meta charset="UTF-8">\n'
      f'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
      f'<title>{title}</title>\n<meta name="description" content="{desc}">\n'
      f'<link rel="icon" href="{FAVICON}">\n{FONTS}\n'
@@ -210,6 +225,7 @@ def _form_js(form_id, ok_id, intent):
      'var btn=f.querySelector("button[type=submit]");if(btn){btn.disabled=true;btn.style.opacity=.6;}'
      'var d=Object.fromEntries(new FormData(f).entries());'
      'd.intent=' + repr(intent) + ';d.persona="";d.submitted_at=new Date().toISOString();d.response_id=uuid();'
+     + lead_event_js(form_id, 'd.intent||"ecosystem"') +
      'fetch(WEBHOOK,{method:"POST",mode:"no-cors",body:JSON.stringify(d)})'
      '.catch(function(){}).finally(function(){'
      'f.style.display="none";var ok=document.getElementById(' + repr(ok_id) + ');if(ok)ok.style.display="block";});'

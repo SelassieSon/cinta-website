@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-32YHFBFH3D"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-32YHFBFH3D");</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Where Does Your Organization Stand? | CINTA & Co.</title>
@@ -1248,6 +1250,7 @@
     d.service_interest = 'Agentic AI Executive Brief';
     d.message = 'Requested a positioning session from the Agentic AI Executive Brief.';
     d.submitted_at = new Date().toISOString();
+    if (window.gtag) { gtag('event', 'generate_lead', {form_name: 'brief-lead', lead_intent: 'lead', service: 'agentic-ai-brief', page_host: location.hostname}); }
     fetch('https://script.google.com/macros/s/AKfycbyg4NZqVPgFFPaC4Nep-5UypZpW2YcH3nv0BmdgXqhAju8LmOgbm57YxAWS49WLAKOI/exec', {
       method: 'POST', mode: 'no-cors', body: JSON.stringify(d)
     }).catch(function(){}).finally(function() {

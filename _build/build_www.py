@@ -441,6 +441,8 @@ def contact():
     // Fire-and-forget to the Apps Script web app, which books the calendar event
     // and emails the confirmation. no-cors keeps the default text/plain body that
     // Apps Script reads as e.postData.contents (no preflight, no CORS setup needed).
+    // GA4 key event + Google Ads conversion. Carries the service, never personal fields.
+    if(window.gtag){{gtag("event","generate_lead",{{form_name:"contact-booking",lead_intent:"booking",service:(new URLSearchParams(location.search).get("service")||"ecosystem-mapping"),page_host:location.hostname}});}}
     fetch(WEBHOOK,{{method:"POST",mode:"no-cors",body:JSON.stringify(d)}})
       .catch(function(){{}})
       .finally(function(){{
